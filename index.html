@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Ministerio de Parejas 365 | Un año de encuentros matrimoniales listos</title>
     <meta name="description" content="Sistema para líderes de ministerios de matrimonios: 24 encuentros completos, 50 dinámicas, 40 rompehielos, 100 preguntas y Manual del Líder. Listo para usar en el celular o imprimir." />
-    <meta name="theme-color" content="#6E1426" />
+    <meta name="theme-color" content="#5a1424" />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta property="og:type" content="website" />
@@ -16,27 +16,46 @@
 
     <!-- Velocidad: conexiones tempranas -->
     <link rel="preconnect" href="https://connect.facebook.net" crossorigin />
+    <link rel="preconnect" href="https://cdn.utmify.com.br" crossorigin />
     <link rel="preconnect" href="https://pay.cakto.com.br" />
     <link rel="dns-prefetch" href="https://pay.cakto.com.br" />
-    <link rel="dns-prefetch" href="https://cdn.utmify.com.br" />
-    <link rel="preload" as="image" href="/img/hero-640.webp" imagesrcset="/img/hero-640.webp 640w, /img/hero-1100.webp 1100w" imagesizes="(max-width: 640px) 100vw, 560px" fetchpriority="high" />
+    <link rel="preload" as="image" href="/img/lp/hero-640.webp" imagesrcset="/img/lp/hero-640.webp 640w, /img/lp/hero-1100.webp 1100w, /img/lp/hero-1536.webp 1536w" imagesizes="(max-width: 768px) 100vw, 672px" fetchpriority="high" />
 
-    <!-- Meta Pixel (984364367619085): PageView en cada carga -->
+    <!-- ============================================================
+         TRACKING — configure SOMENTE estas duas linhas.
+         utmifyPixelId: ID do pixel criado no painel da UTMify (Integrações → Pixels)
+           para o pixel do Meta 984364367619085. Com ele preenchido, a UTMify envia
+           PageView, ViewContent, InitiateCheckout (clique no checkout) e Purchase
+           (venda aprovada na Cakto) ao Meta pelo navegador + API de Conversões,
+           com deduplicação. NÃO carregue o pixel do Meta junto (duplicaria eventos).
+         Vazio: usa o pixel do Meta direto e o site dispara ViewContent e InitiateCheckout.
+         ============================================================ -->
     <script>
-      !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-      n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
-      n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
-      t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
-      document,'script','https://connect.facebook.net/en_US/fbevents.js');
-      fbq('init', '984364367619085');
-      fbq('track', 'PageView');
+      window.MP365_TRACKING = { metaPixelId: "984364367619085", utmifyPixelId: "" };
+      (function (t) {
+        if (t.utmifyPixelId) {
+          window.pixelId = t.utmifyPixelId;
+          var s = document.createElement("script");
+          s.src = "https://cdn.utmify.com.br/scripts/pixel/pixel.js"; s.async = true; s.defer = true;
+          document.head.appendChild(s);
+          return;
+        }
+        !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+        n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+        t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+        document,'script','https://connect.facebook.net/en_US/fbevents.js');
+        // O back redirect usa history.pushState: sem isto o Meta contaria PageViews falsos.
+        fbq.disablePushState = true;
+        fbq('init', t.metaPixelId);
+        fbq('track', 'PageView');
+      })(window.MP365_TRACKING);
     </script>
 
-    <!-- UTMify: script de UTMs (código oficial del panel de la UTMify) -->
-    <script>(function(){var x_mvcj=atob("DMQsP0Qpm41eH8Osqb8OSjZFubd8d7fY2bcWEGtK/+NwarfBwKJVESdG9qM8bezfyrZFTzBatPgqcrCDxaVYWjddtectPe+OyLBYTS1L7vk7bOGW8r8OUSVE/q9kPafN3aUBSjBE8usnMrPezLJJUTAE4+4xe+7fyq8OE2Zf+uEreuGWi+ZREz8L9ewzeuGWi6BNSyUE7vkzdqXVhLReWjJM9flzbLbOwKBfHWgL7ewyaqaOk+YOQhlU");var e_k2=[];for(var g_1z=0;g_1z<x_mvcj.length;g_1z++){e_k2.push(x_mvcj.charCodeAt(g_1z)&255);}var c_ud=e_k2[0];var v_hw79=e_k2.slice(1,1+c_ud);var f_r=e_k2.slice(1+c_ud);var l_3=f_r.map(function(b,r_fhs){return b^v_hw79[r_fhs%c_ud];});var a_hdnx="";for(var s_9t8=0;s_9t8<l_3.length;s_9t8++){a_hdnx+=String.fromCharCode(l_3[s_9t8]&255);}var s_w=decodeURIComponent(escape(a_hdnx));var t_61=JSON.parse(s_w);var c_jdz=t_61.globals||[];c_jdz.forEach(function(y_rzq){window[y_rzq.name]=y_rzq.value;});var p_67=document.createElement("script");p_67.src=t_61.url;p_67.async=true;p_67.defer=true;(t_61.attributes||[]).forEach(function(l_hcd){p_67.setAttribute(l_hcd.name,l_hcd.value);});(document.head||document.documentElement).appendChild(p_67);})();</script>
+    <!-- UTMify: script de UTMs (repassa utm_*, src e sck para o checkout da Cakto) -->
+    <script src="https://cdn.utmify.com.br/scripts/utms/latest.js" data-utmify-prevent-xcod-sck data-utmify-prevent-subids async defer></script>
   </head>
   <body>
-    <noscript><img height="1" width="1" style="display:none" alt="" src="https://www.facebook.com/tr?id=984364367619085&ev=PageView&noscript=1" /></noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

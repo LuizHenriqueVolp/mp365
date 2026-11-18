@@ -6,3 +6,6 @@ dist
 neon/node_modules
 neon/build
 neon/function.zip
+
+.vercel
+.env*

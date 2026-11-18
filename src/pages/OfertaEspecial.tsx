@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { CHECKOUT, PRECIOS, UPSELL_CAKTO_HTML } from "@/config";
-import { logEvent } from "@/lib/tracking";
+import { logEvent, trackPageContent } from "@/lib/tracking";
 import { CheckoutButton, Footer, Trust, useReveal } from "@/components/ui";
 
 const usd = (n: number) => `US$ ${n.toFixed(2).replace(".", ",")}`;
@@ -36,7 +36,7 @@ const INCLUYE = [
 export default function OfertaEspecial() {
   useReveal();
   useEffect(() => {
-    try { window.fbq?.("track", "ViewContent", { content_name: "Upsell Retiro de Parejas", value: PRECIOS.upsell, currency: PRECIOS.moneda }); } catch { /* ignore */ }
+    trackPageContent("Upsell Retiro de Parejas", PRECIOS.upsell);
     logEvent("upsell_view");
   }, []);
 
@@ -58,7 +58,7 @@ export default function OfertaEspecial() {
         <p className="mt-5 text-center text-[15px] text-tinta/80">Un retiro bien organizado puede lograr en un fin de semana lo que a veces no se logra en meses de reuniones. Con esta guía, tu equipo sabe exactamente qué hacer en cada momento.</p>
       </section>
 
-      <section data-reveal className="bg-[radial-gradient(circle_at_50%_0%,#8A1D33,#6E1426_45%,#4A0D19)] px-5 py-10 text-center text-white">
+      <section data-reveal className="bg-wine-gradient px-5 py-10 text-center text-white">
         <div className="mx-auto max-w-sm">
           <div className="font-sans text-[13px] text-white/75">Solo en esta página · pago único</div>
           <div className="font-display text-[48px] font-bold leading-none text-oro-light">{usd(PRECIOS.upsell)}</div>

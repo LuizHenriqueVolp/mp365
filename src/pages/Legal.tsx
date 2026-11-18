@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { Footer } from "@/components/ui";
+import { GARANTIA_DIAS } from "@/config";
 
 function Page({ title, children }: { title: string; children: ReactNode }) {
   return (
@@ -33,7 +34,7 @@ export function Terminos() {
     <Page title="Términos y condiciones">
       <p><b>Producto.</b> Ministerio de Parejas 365 es un producto digital (archivos PDF e imágenes) para apoyar la planificación de encuentros en ministerios de matrimonios. El acceso se envía por correo electrónico después de la confirmación del pago.</p>
       <p><b>Licencia de uso.</b> Al comprar, recibes una licencia personal y ministerial: puedes usar el material e imprimir las copias necesarias para tu ministerio o iglesia local. No está permitida la reventa, la distribución pública ni la publicación del material en internet.</p>
-      <p><b>Garantía.</b> Tienes 7 días desde la compra para solicitar el reembolso por la plataforma de pago, sin necesidad de justificar el motivo.</p>
+      <p><b>Garantía.</b> Tienes {GARANTIA_DIAS} días desde la compra para solicitar el reembolso por la plataforma de pago, sin necesidad de justificar el motivo.</p>
       <p><b>Alcance.</b> El material es educativo y devocional. No sustituye la consejería pastoral, psicológica ni médica. Ante situaciones de violencia, adicciones o riesgo, busca ayuda profesional y comunícate con los servicios de emergencia de tu país.</p>
       <p><b>Autores citados.</b> Las referencias a obras de otros autores se hacen con fines educativos. Esos autores no están afiliados a este producto ni lo respaldan.</p>
       <p><b>Soporte.</b> Cualquier solicitud se atiende por medio de la plataforma de pago (Cakto), con el correo usado en la compra.</p>

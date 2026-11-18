@@ -1,44 +1,172 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
-body { @apply bg-crema text-tinta font-body antialiased; font-size: 17px; line-height: 1.6; }
-h1, h2, h3 { @apply font-display text-vino; line-height: 1.15; }
-img { max-width: 100%; height: auto; }
-
-.eyebrow { @apply font-sans text-[11px] font-bold uppercase tracking-[0.2em] text-oro; }
-.gold-rule { height: 1px; background: linear-gradient(90deg, transparent, #C9A04A, transparent); }
-
-/* Botón principal con brillo discreto */
-.btn-cta {
-  @apply relative inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-full bg-vino px-5 font-sans text-[14px] font-bold uppercase tracking-normal text-white text-center leading-tight shadow-lg transition-transform active:scale-[0.98];
-  min-height: 56px;
-  box-shadow: 0 10px 24px rgba(110, 20, 38, 0.35);
+/* ============================================================
+   Tema copiado de parejas365.lovable.app (mesmas cores, fontes,
+   raios e sombras). Os nomes antigos (vino, oro, crema, tinta)
+   continuam valendo nas páginas secundárias e apontam para a
+   paleta nova.
+   ============================================================ */
+:root {
+  --radius: 0.75rem;
+  --cream: oklch(97.5% 0.012 85);
+  --beige: oklch(93.8% 0.023 82);
+  --wine: oklch(37.5% 0.115 15);
+  --wine-deep: oklch(29% 0.098 14);
+  --gold: oklch(77.5% 0.098 82);
+  --gold-soft: oklch(88.5% 0.055 85);
+  --rose-detail: oklch(79% 0.06 20);
+  --brown-warm: oklch(45% 0.045 55);
+  --background: var(--cream);
+  --foreground: oklch(26% 0.03 30);
+  --card: oklch(99.5% 0.006 85);
+  --primary: var(--wine);
+  --primary-foreground: oklch(98.5% 0.01 85);
+  --secondary: var(--beige);
+  --muted: oklch(95.5% 0.016 84);
+  --muted-foreground: oklch(48% 0.03 40);
+  --border: oklch(90% 0.022 82);
+  --gradient-wine: linear-gradient(160deg, var(--wine) 0%, var(--wine-deep) 100%);
+  --gradient-gold: linear-gradient(100deg, var(--gold-soft), var(--gold), var(--gold-soft));
+  --gradient-cream: linear-gradient(180deg, var(--cream) 0%, var(--beige) 100%);
+  --shadow-soft: 0 10px 30px -12px oklch(29% 0.098 14 / 0.18);
+  --shadow-premium: 0 24px 60px -24px oklch(29% 0.098 14 / 0.3);
 }
-.btn-cta::after {
-  content: ""; position: absolute; inset: 0; transform: translateX(-120%);
-  background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,.35) 50%, transparent 70%);
-  animation: shine 3.2s ease-in-out infinite;
+
+@theme inline {
+  --font-sans: "Jost", system-ui, sans-serif;
+  --font-body: "Jost", system-ui, sans-serif;
+  --font-display: "Cormorant Garamond", Georgia, serif;
+  --font-serif: "Cormorant Garamond", Georgia, serif;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-cream: var(--cream);
+  --color-beige: var(--beige);
+  --color-wine: var(--wine);
+  --color-wine-deep: var(--wine-deep);
+  --color-gold: var(--gold);
+  --color-gold-soft: var(--gold-soft);
+  --color-rose-detail: var(--rose-detail);
+  --color-brown-warm: var(--brown-warm);
+
+  /* nomes antigos → paleta nova */
+  --color-vino: var(--wine);
+  --color-vino-700: oklch(42% 0.12 15);
+  --color-vino-900: var(--wine-deep);
+  --color-oro: var(--gold);
+  --color-oro-light: var(--gold-soft);
+  --color-crema: var(--cream);
+  --color-tinta: var(--foreground);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
 }
-.btn-gold { @apply bg-oro-light text-vino-900; box-shadow: 0 10px 24px rgba(201,160,74,.35); }
-@keyframes shine { 0%, 60% { transform: translateX(-120%); } 100% { transform: translateX(120%); } }
 
-.pulse-soft { animation: pulseSoft 2.6s ease-in-out infinite; }
-@keyframes pulseSoft { 0%,100% { transform: scale(1); } 50% { transform: scale(1.025); } }
+@layer base {
+  * { border-color: var(--border); }
+  html { scroll-behavior: smooth; overflow-x: hidden; }
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  h1, h2, h3 { font-family: var(--font-display); letter-spacing: -0.01em; font-weight: 600; }
+  button { cursor: pointer; }
+}
 
-/* Entrada al hacer scroll */
-[data-reveal] { opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s ease; }
-[data-reveal].in { opacity: 1; transform: none; }
+@utility section-pad {
+  padding-top: 3.5rem;
+  padding-bottom: 3.5rem;
+  @media (width >= 768px) { padding-top: 6rem; padding-bottom: 6rem; }
+}
+@utility eyebrow { letter-spacing: 0.22em; text-transform: uppercase; color: var(--brown-warm); font-size: 0.7rem; font-weight: 500; }
+@utility bg-wine-gradient { background: var(--gradient-wine); }
+@utility bg-cream-gradient { background: var(--gradient-cream); }
+@utility bg-gold-gradient { background: var(--gradient-gold); }
+@utility text-gold-gradient { background: var(--gradient-gold); color: transparent; -webkit-background-clip: text; background-clip: text; }
+@utility shadow-soft { box-shadow: var(--shadow-soft); }
+@utility shadow-premium { box-shadow: var(--shadow-premium); }
+@utility no-scrollbar { scrollbar-width: none; &::-webkit-scrollbar { display: none; } }
+@utility strike-red {
+  color: var(--muted-foreground);
+  text-decoration: line-through oklch(55% 0.22 27);
+  text-decoration-thickness: 2px;
+  position: relative;
+}
 
-.card { @apply rounded-2xl border border-[#eadfcf] bg-white p-5 shadow-[0_1px_0_rgba(0,0,0,.03)]; }
+/* Botão com brilho, igual ao original */
+@utility cta-highlight {
+  isolation: isolate;
+  animation: cta-glow 2.4s ease-out infinite;
+  position: relative;
+  overflow: hidden;
+  &::after {
+    content: "";
+    position: absolute; top: 0; bottom: 0; left: 0; width: 35%;
+    background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--gold-soft) 60%, transparent), transparent);
+    pointer-events: none;
+    animation: cta-shine 3s ease-in-out infinite;
+  }
+  &:hover { animation-play-state: paused; }
+}
+@keyframes cta-glow {
+  0%, 100% { box-shadow: var(--shadow-premium), 0 0 0 0 color-mix(in oklab, var(--gold) 55%, transparent); }
+  50% { box-shadow: var(--shadow-premium), 0 0 0 10px color-mix(in oklab, var(--gold) 0%, transparent); }
+}
+@keyframes cta-shine {
+  0% { transform: translateX(-120%) skewX(-18deg); }
+  60%, 100% { transform: translateX(220%) skewX(-18deg); }
+}
 
-/* Carrusel deslizable */
+/* Depoimentos em faixa contínua */
+.fb-marquee {
+  width: 100%;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, #0000, #000 6% 94%, #0000);
+  mask-image: linear-gradient(90deg, #0000, #000 6% 94%, #0000);
+}
+.fb-marquee-track { display: flex; gap: 1rem; width: max-content; padding-left: 1rem; animation: fb-marquee-scroll 45s linear infinite; }
+.fb-marquee:hover .fb-marquee-track { animation-play-state: paused; }
+@keyframes fb-marquee-scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+/* ---------- Componentes usados pelas páginas secundárias ---------- */
+@utility btn-cta {
+  position: relative;
+  display: inline-flex; width: 100%; min-height: 56px;
+  align-items: center; justify-content: center; gap: 0.5rem;
+  overflow: hidden; border-radius: 9999px;
+  background: var(--gradient-wine);
+  padding: 0 1.25rem;
+  font-family: var(--font-sans); font-size: 14px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.12em; line-height: 1.2;
+  color: var(--primary-foreground); text-align: center;
+  box-shadow: var(--shadow-premium);
+  transition: transform 0.2s;
+  &:active { transform: scale(0.98); }
+}
+@utility btn-gold { background: var(--gradient-gold); color: var(--wine-deep); }
+@utility card { border-radius: calc(var(--radius) + 8px); border: 1px solid color-mix(in oklab, var(--gold-soft) 60%, transparent); background: var(--card); padding: 1.25rem; box-shadow: var(--shadow-soft); }
+.gold-rule { height: 1px; background: var(--gradient-gold); }
 .snap-row { display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding: 4px 20px 12px; }
 .snap-row::-webkit-scrollbar { display: none; }
 .snap-row > * { scroll-snap-align: center; flex: 0 0 78%; max-width: 340px; }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
-  [data-reveal] { opacity: 1; transform: none; }
+  .cta-highlight { animation: none; }
+  .cta-highlight::after { opacity: 0; animation: none; }
+  .fb-marquee-track { animation: none; }
+  html { scroll-behavior: auto; }
 }

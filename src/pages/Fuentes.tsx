@@ -13,9 +13,9 @@ export default function Fuentes() {
   useReveal();
   return (
     <main>
-      <header className="bg-[radial-gradient(circle_at_50%_0%,#8A1D33,#6E1426_50%,#4A0D19)] px-5 pb-10 pt-8 text-center text-white">
+      <header className="bg-wine-gradient px-5 pb-10 pt-8 text-center text-white">
         <Link to="/"><img src="/img/logo-96.webp" alt="Ministerio de Parejas 365" width={64} height={64} className="mx-auto mb-4 rounded-full" /></Link>
-        <div className="eyebrow !text-oro-light">Fuentes y gratitud</div>
+        <div className="eyebrow text-gold-soft!">Fuentes y gratitud</div>
         <h1 className="mx-auto mt-3 max-w-md text-[28px] font-bold text-white">Sobre hombros de gigantes</h1>
         <p className="mx-auto mt-3 max-w-md text-[16px] text-white/85">Nuestro fundamento es la Biblia. Y queremos agradecer a quienes, con sus investigaciones y libros, han ayudado a la iglesia a acompañar mejor a los matrimonios.</p>
       </header>

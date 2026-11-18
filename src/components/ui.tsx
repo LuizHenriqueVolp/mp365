@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
+import { GARANTIA_DIAS } from "@/config";
 import { checkoutUrl, scrollToId, trackCheckoutClick, trackSectionView } from "@/lib/tracking";
 
-/** Activa la animación de entrada de todos los [data-reveal] y registra secciones vistas. */
+/** Registra secciones vistas ([data-track]) y activa la animación de [data-reveal]. */
 export function useReveal() {
   useEffect(() => {
-    const els = document.querySelectorAll<HTMLElement>("[data-reveal]");
+    const els = document.querySelectorAll<HTMLElement>("[data-reveal], [data-track]");
     if (!("IntersectionObserver" in window)) { els.forEach((e) => e.classList.add("in")); return; }
     const io = new IntersectionObserver((entries) => {
       entries.forEach((e) => {
@@ -22,48 +23,70 @@ export function useReveal() {
   }, []);
 }
 
-/** Contador animado cuando entra en pantalla. */
-export function Counter({ to, className = "" }: { to: number; className?: string }) {
-  const ref = useRef<HTMLSpanElement>(null);
-  const [n, setN] = useState(to);
-  useEffect(() => {
-    const el = ref.current; if (!el) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    setN(0);
-    const io = new IntersectionObserver(([e]) => {
-      if (!e.isIntersecting) return;
-      io.disconnect();
-      const start = performance.now(), dur = 1100;
-      const step = (t: number) => { const p = Math.min(1, (t - start) / dur); setN(Math.round(to * (1 - Math.pow(1 - p, 3)))); if (p < 1) requestAnimationFrame(step); };
-      requestAnimationFrame(step);
-    }, { threshold: 0.6 });
-    io.observe(el);
-    return () => io.disconnect();
-  }, [to]);
-  return <span ref={ref} className={className}>{n}</span>;
-}
+/* ---------- Ornamentos (SVG copiados del original) ---------- */
+export const Rings = ({ className = "" }: { className?: string }) => (
+  <svg viewBox="0 0 48 32" className={className} fill="none" aria-hidden="true">
+    <circle cx="18" cy="18" r="11" stroke="currentColor" strokeWidth="1.4" />
+    <circle cx="30" cy="18" r="11" stroke="currentColor" strokeWidth="1.4" />
+    <path d="M24 2v8M20.5 5.5h7" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+  </svg>
+);
+export const Leaf = ({ className = "" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" className={className} fill="none" aria-hidden="true">
+    <path d="M12 21c0-6 3-9 9-9-1 5-4 8-9 9Zm0 0c0-6-3-9-9-9 1 5 4 8 9 9Z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
+  </svg>
+);
+export const Check = ({ className = "mt-0.5 h-5 w-5 shrink-0 text-gold" }: { className?: string }) => (
+  <svg viewBox="0 0 20 20" className={className} fill="none" aria-hidden="true">
+    <circle cx="10" cy="10" r="9" stroke="currentColor" strokeWidth="1.1" opacity="0.5" />
+    <path d="M6 10.3l2.6 2.5L14.2 7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+export const Shield = ({ className = "" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" className={className} fill="none" aria-hidden="true">
+    <path d="M12 21c4.5-2 7-5.4 7-9.6V5.6L12 3 5 5.6v5.8C5 15.6 7.5 19 12 21Z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
+    <path d="M8.8 12l2.2 2.2L15.4 9.6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+export const Divider = ({ className = "mt-6" }: { className?: string }) => (
+  <div className={`flex items-center justify-center gap-3 ${className}`}>
+    <span className="h-px w-14 bg-gold-gradient" />
+    <Leaf className="h-4 w-4 text-gold" />
+    <span className="h-px w-14 bg-gold-gradient" />
+  </div>
+);
 
-/** Botón que lleva a la sección de planes. */
-export function CtaToPlans({ children = "Quiero mis encuentros listos", gold = false }: { children?: ReactNode; gold?: boolean }) {
+/** Clases del botón del original. */
+export const CTA_CLASS =
+  "cta-highlight relative z-10 inline-flex w-full min-h-14 cursor-pointer items-center justify-center gap-2 rounded-full px-7 py-4 text-center text-sm font-semibold uppercase tracking-[0.12em] text-primary-foreground transition-transform duration-200 [touch-action:manipulation] [-webkit-tap-highlight-color:transparent] hover:[@media(hover:hover)]:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold sm:text-base bg-wine-gradient shadow-premium";
+
+export const trustText = `Pago seguro • Acceso inmediato • Garantía de ${GARANTIA_DIAS} días`;
+
+/** Botón que baja hasta los planes (sin crear entradas en el historial). */
+export function CtaToPlans({ children = "QUIERO MIS ENCUENTROS LISTOS", trust = false }: { children?: ReactNode; trust?: boolean }) {
   return (
-    <a href="#planes" onClick={(e) => { e.preventDefault(); scrollToId("planes"); }} className={`btn-cta pulse-soft ${gold ? "btn-gold" : ""}`}>
-      {children} <span aria-hidden>→</span>
-    </a>
+    <div className="flex w-full flex-col items-center">
+      <a href="#oferta" role="button" onClick={(e) => { e.preventDefault(); scrollToId("oferta"); }} className={`${CTA_CLASS} max-w-md`}>
+        <span className="pointer-events-none inline-flex items-center gap-2"><span>{children}</span><span aria-hidden="true">→</span></span>
+      </a>
+      {trust && <p className="mt-3 text-xs text-muted-foreground sm:text-sm">{trustText}</p>}
+    </div>
   );
 }
 
-/** Botón que abre el checkout. El enlace ya sale con las UTMs (sin esperas ni JavaScript bloqueante):
- *  el evento se dispara en el primer toque (pointerdown) y la navegación es inmediata. */
-export function CheckoutButton({ href, plan, value, children, gold = false }: { href: string; plan: "basico" | "completo" | "upsell"; value: number; children: ReactNode; gold?: boolean }) {
+/** Botón que abre el checkout: el enlace ya sale con las UTMs, el evento se dispara en el
+ *  primer toque (pointerdown) y la navegación es inmediata. */
+export function CheckoutButton({ href, plan, value, children, gold = false, className }: { href: string; plan: "basico" | "completo" | "upsell"; value: number; children: ReactNode; gold?: boolean; className?: string }) {
   const [url, setUrl] = useState(href);
   useEffect(() => { setUrl(checkoutUrl(href)); }, [href]);
   const fire = () => trackCheckoutClick(plan, value);
   return (
     <a
       href={url}
+      rel="noopener"
       onPointerDown={fire}
       onClick={(e) => { fire(); (e.currentTarget as HTMLAnchorElement).href = checkoutUrl(href); }}
-      className={`btn-cta ${gold ? "btn-gold" : ""}`}
+      className={className ?? `btn-cta ${gold ? "btn-gold" : ""}`}
       data-plan={plan}
     >
       {children}
@@ -72,17 +95,12 @@ export function CheckoutButton({ href, plan, value, children, gold = false }: { 
 }
 
 export function Trust({ light = false }: { light?: boolean }) {
-  const c = light ? "text-white/85" : "text-tinta/70";
-  return (
-    <div className={`mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 font-sans text-[12px] font-medium ${c}`}>
-      <span>🔒 Pago seguro</span><span>⚡ Acceso inmediato</span><span>🛡️ Garantía de 7 días</span>
-    </div>
-  );
+  return <p className={`mt-3 text-center text-xs sm:text-sm ${light ? "text-primary-foreground/85" : "text-muted-foreground"}`}>{trustText}</p>;
 }
 
 export function Section({ id, track, className = "", children }: { id?: string; track?: string; className?: string; children: ReactNode }) {
   return (
-    <section id={id} data-reveal data-track={track} className={`mx-auto w-full max-w-xl px-5 py-12 ${className}`}>
+    <section id={id} data-track={track} className={`mx-auto w-full max-w-xl px-5 py-12 ${className}`}>
       {children}
     </section>
   );
@@ -91,47 +109,50 @@ export function Section({ id, track, className = "", children }: { id?: string; 
 export function Title({ eyebrow, children, sub }: { eyebrow?: string; children: ReactNode; sub?: ReactNode }) {
   return (
     <div className="mb-6 text-center">
-      {eyebrow && <div className="eyebrow mb-2">{eyebrow}</div>}
-      <h2 className="text-[26px] font-bold sm:text-[30px]">{children}</h2>
-      {sub && <p className="mt-3 text-[16px] text-tinta/80">{sub}</p>}
-      <div className="gold-rule mx-auto mt-4 w-40" />
+      {eyebrow && <p className="eyebrow mb-2">{eyebrow}</p>}
+      <h2 className="text-balance font-display text-2xl leading-tight text-wine-deep sm:text-3xl">{children}</h2>
+      {sub && <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">{sub}</p>}
+      <Divider className="mt-4" />
     </div>
   );
 }
 
-/** CTA fijo en el celular: aparece después del hero y se oculta en la sección de planes. */
-export function StickyCta() {
-  const [show, setShow] = useState(false);
-  useEffect(() => {
-    const onScroll = () => {
-      const plans = document.getElementById("planes");
-      const y = window.scrollY;
-      let inPlans = false;
-      if (plans) { const r = plans.getBoundingClientRect(); inPlans = r.top < window.innerHeight * 0.8 && r.bottom > 0; }
-      setShow(y > 650 && !inPlans);
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-  return (
-    <div className={`fixed inset-x-0 bottom-0 z-50 border-t border-oro/30 bg-white/95 px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 backdrop-blur transition-transform duration-300 md:hidden ${show ? "translate-y-0" : "translate-y-full"}`}>
-      <a href="#planes" onClick={(e) => { e.preventDefault(); scrollToId("planes"); }} className="btn-cta !min-h-[50px] text-[14px]">Ver planes desde US$ 9,90 →</a>
-    </div>
-  );
-}
-
+/** Rodapé igual ao original (sem o aviso sobre o Meta). */
 export function Footer() {
+  const links: [string, string][] = [["/privacidad", "Política de Privacidad"], ["/terminos", "Términos y Condiciones"], ["/fuentes", "Fuentes"]];
   return (
-    <footer className="bg-vino-900 px-5 pb-28 pt-10 text-center text-[13px] text-white/75 md:pb-10">
-      <img src="/img/logo-96.webp" alt="Ministerio de Parejas 365" width={64} height={64} className="mx-auto mb-3 rounded-full" loading="lazy" />
-      <nav className="mb-4 flex flex-wrap justify-center gap-x-4 gap-y-2 font-sans">
-        <Link to="/fuentes" className="underline-offset-2 hover:underline">Fuentes y gratitud</Link>
-        <Link to="/privacidad" className="underline-offset-2 hover:underline">Política de privacidad</Link>
-        <Link to="/terminos" className="underline-offset-2 hover:underline">Términos y condiciones</Link>
-      </nav>
-      <p className="mx-auto max-w-md">© {new Date().getFullYear()} Ministerio de Parejas 365. Producto digital independiente para apoyar la planificación de ministerios de matrimonios. No sustituye la consejería pastoral ni profesional.</p>
-      <p className="mx-auto mt-3 max-w-md text-[11px] text-white/55">Este sitio no forma parte de Facebook ni de Meta Platforms, Inc., y no está respaldado por Meta de ninguna manera. Los autores citados en el material no están afiliados a este producto ni lo respaldan.</p>
+    <footer className="bg-wine-gradient px-5 py-10">
+      <div className="mx-auto max-w-4xl text-center">
+        <Rings className="mx-auto h-6 w-10 text-gold" />
+        <p className="mt-3 font-display text-lg uppercase tracking-[0.16em] text-primary-foreground">Ministerio de Parejas 365</p>
+        <nav className="mt-5 flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+          {links.map(([to, label]) => (
+            <Link key={to} to={to} className="inline-flex min-h-11 items-center text-sm text-primary-foreground/85 underline-offset-4 transition-colors hover:text-gold hover:underline">{label}</Link>
+          ))}
+        </nav>
+        <div className="mx-auto mt-6 h-px w-40 bg-gold-gradient" />
+        <p className="mt-5 text-xs text-primary-foreground/75">© {new Date().getFullYear()} Ministerio de Parejas 365. Todos los derechos reservados.</p>
+        <p className="mx-auto mt-3 max-w-xl text-xs leading-relaxed text-primary-foreground/60">Producto digital independiente creado para apoyar la planificación y organización de actividades en ministerios de matrimonios.</p>
+      </div>
     </footer>
   );
+}
+
+/** Lightbox simple para ampliar imágenes. */
+export function useLightbox() {
+  const [img, setImg] = useState<{ src: string; alt: string } | null>(null);
+  const close = useRef(() => setImg(null)).current;
+  useEffect(() => {
+    if (!img) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") close(); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [img, close]);
+  const node = img ? (
+    <div role="dialog" aria-modal="true" aria-label={img.alt} onClick={close} className="fixed inset-0 z-50 flex items-center justify-center bg-wine-deep/80 p-5 backdrop-blur-sm">
+      <img src={img.src} alt={img.alt} className="max-h-[85vh] w-auto max-w-full rounded-2xl border border-gold/50" />
+      <button type="button" onClick={close} aria-label="Cerrar imagen" className="absolute right-4 top-4 grid h-11 w-11 place-items-center rounded-full border border-gold/60 text-gold">✕</button>
+    </div>
+  ) : null;
+  return { open: setImg, node };
 }

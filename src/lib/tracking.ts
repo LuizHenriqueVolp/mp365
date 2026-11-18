@@ -1,8 +1,14 @@
-import { EVENTS_ENDPOINT, PIXEL_ID, PRECIOS, TRACK_INITIATE_CHECKOUT_ON_CLICK } from "@/config";
+import { EVENTS_ENDPOINT, PIXEL_ID, PRECIOS } from "@/config";
 
 declare global {
-  interface Window { fbq?: (...args: unknown[]) => void }
+  interface Window {
+    fbq?: (...args: unknown[]) => void;
+    MP365_TRACKING?: { metaPixelId: string; utmifyPixelId: string };
+  }
 }
+
+/** true = pixel da UTMify ativo: ela dispara PageView/ViewContent/IC/Purchase; o site não duplica. */
+export const utmifyPixelActive = () => !!window.MP365_TRACKING?.utmifyPixelId;
 
 const UTM_KEYS = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term", "src", "sck", "fbclid", "xcod"];
 const STORE = "mp365_attr";
@@ -76,23 +82,39 @@ export function logEvent(event: string, data: Record<string, unknown> = {}) {
 function fbq(...args: unknown[]) { try { window.fbq?.(...args); } catch { /* ignore */ } }
 
 export function trackViewContent() {
-  fbq("track", "ViewContent", { content_name: "Ministerio de Parejas 365", content_category: "Producto digital", currency: PRECIOS.moneda, value: PRECIOS.completo });
+  if (!utmifyPixelActive()) fbq("track", "ViewContent", { content_name: "Ministerio de Parejas 365", content_category: "Producto digital", currency: PRECIOS.moneda, value: PRECIOS.completo });
   logEvent("view_content");
+}
+
+/** ViewContent de páginas secundarias (solo con el pixel del Meta directo; la UTMify ya lo envía). */
+export function trackPageContent(name: string, value: number) {
+  if (!utmifyPixelActive()) fbq("track", "ViewContent", { content_name: name, currency: PRECIOS.moneda, value });
+}
+
+/** PageView em navegação interna (SPA). A UTMify detecta a troca de URL sozinha. */
+export function trackRouteView() {
+  if (!utmifyPixelActive()) fbq("track", "PageView");
 }
 
 export function trackSectionView(name: string) { logEvent("section_view", { name }); }
 
-/** Clic en botón de compra. Siempre registra un evento personalizado; IC solo si está habilitado. */
+/** Clic en botón de compra. Registra el clic; InitiateCheckout solo cuando el pixel de la UTMify
+ *  no está activo (la UTMify ya lo dispara al detectar el enlace de la Cakto) y una vez por plano/sesión. */
 const fired = new Set<string>();
 export function trackCheckoutClick(plan: "basico" | "completo" | "upsell", value: number) {
   if (fired.has(plan)) return; // pointerdown + click no deben contar doble
   fired.add(plan);
   setTimeout(() => fired.delete(plan), 4000);
-  const eventID = `${plan}-${sessionId()}-${Date.now()}`;
-  fbq("trackCustom", "ClicComprar", { plan, value, currency: PRECIOS.moneda });
-  if (TRACK_INITIATE_CHECKOUT_ON_CLICK) {
-    fbq("track", "InitiateCheckout", { value, currency: PRECIOS.moneda, content_name: plan, num_items: 1 }, { eventID });
+  if (!utmifyPixelActive()) {
+    const key = `mp365_ic_${plan}`;
+    let first = true;
+    try { first = !sessionStorage.getItem(key); sessionStorage.setItem(key, "1"); } catch { /* ignore */ }
+    if (first) {
+      const eventID = `ic-${plan}-${sessionId()}`;
+      fbq("track", "InitiateCheckout", { value, currency: PRECIOS.moneda, content_name: plan, content_ids: [plan], content_type: "product", num_items: 1 }, { eventID });
+    }
   }
+  fbq("trackCustom", "ClicComprar", { plan, value, currency: PRECIOS.moneda });
   logEvent("checkout_click", { plan, value });
 }
 

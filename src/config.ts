@@ -3,7 +3,11 @@
 // precios, enlaces de checkout y tracking.
 // ============================================================
 
+// Pixel do Meta e pixel da UTMify: configurados em index.html (window.MP365_TRACKING).
 export const PIXEL_ID = "984364367619085";
+
+// Garantia (dias) — aparece em toda a página, FAQ e termos.
+export const GARANTIA_DIAS = 15;
 
 // Enlaces de checkout de la Cakto.
 export const CHECKOUT = {
@@ -28,27 +32,25 @@ export const PRECIOS = {
   bonos: { conexion: 9.9, comunicacion: 7.9, organizacion: 6.9 },
 };
 
-// Tracking:
-// - PageView: automático (index.html).
-// - ViewContent: al cargar la página de ventas.
-// - InitiateCheckout: lo dispara el CHECKOUT de la Cakto (pixel configurado allá) cuando el checkout abre.
-//   Si NO configuras el pixel en la Cakto, cambia a true para dispararlo en el clic (evita duplicar).
-// - Purchase: SIEMPRE desde la Cakto / UTMify (solo el checkout sabe si se aprobó).
-export const TRACK_INITIATE_CHECKOUT_ON_CLICK = false;
+// Tracking (decidido automaticamente em src/lib/tracking.ts):
+// - Com o pixel da UTMify (utmifyPixelId em index.html): a UTMify dispara PageView, ViewContent,
+//   InitiateCheckout e Purchase. O site não dispara nenhum evento padrão (evita duplicar).
+// - Sem ele: pixel do Meta direto → PageView (index.html), ViewContent ao abrir a página e
+//   InitiateCheckout no clique do botão de compra (os checkouts da Cakto NÃO têm pixel configurado).
+//   Purchase precisa vir da Cakto (pixel no produto) ou da UTMify.
 
 // Back redirect (script de la UTMify): si la persona toca "atrás" en la página de ventas,
 // la lleva a esta página conservando las UTMs. Déjalo vacío ("") para desactivarlo.
 export const BACK_REDIRECT_PATH = "/ultima-oportunidad";
 
-// Testimonios reales y autorizados (capturas de mensajes). Imágenes servidas desde la página anterior;
-// si un día la desactivas, copia los archivos a /public/img/testimonios/ y cambia las rutas.
+// Testimonios reales y autorizados (capturas de mensajes), copiados a /public/img/lp/.
 export const TESTIMONIOS: { nombre: string; img: string }[] = [
-  { nombre: "Rosa Fernández", img: "https://parejas365.lovable.app/assets/fb1-Ci0AEi57.webp" },
-  { nombre: "Ana Lucía Ríos", img: "https://parejas365.lovable.app/assets/fb2-1X4j5uqx.webp" },
-  { nombre: "Sofía Castillo", img: "https://parejas365.lovable.app/assets/fb3-R3nctPl4.webp" },
-  { nombre: "Carlos Méndez", img: "https://parejas365.lovable.app/assets/fb4-DAmMlVss.webp" },
-  { nombre: "Javier Morales", img: "https://parejas365.lovable.app/assets/fb5-TpGIuP5G.webp" },
-  { nombre: "Andrés y Valeria Gómez", img: "https://parejas365.lovable.app/assets/fb6-DS1U6ENr.webp" },
+  { nombre: "Rosa Fernández", img: "fb1" },
+  { nombre: "Ana Lucía Ríos", img: "fb2" },
+  { nombre: "Sofía Castillo", img: "fb3" },
+  { nombre: "Carlos Méndez", img: "fb4" },
+  { nombre: "Javier Morales", img: "fb5" },
+  { nombre: "Andrés y Valeria Gómez", img: "fb6" },
 ];
 
 // Registro propio de eventos (Neon Function "eventos", proyecto Neon "ministerio-parejas-365-latam").

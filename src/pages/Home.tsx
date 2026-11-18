@@ -1,349 +1,395 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { BACK_REDIRECT_PATH, CHECKOUT, PRECIOS, TESTIMONIOS } from "@/config";
+import { useEffect, useRef, useState } from "react";
+import { BACK_REDIRECT_PATH, CHECKOUT, GARANTIA_DIAS, PRECIOS, TESTIMONIOS } from "@/config";
 import { setupBackRedirect, trackViewContent } from "@/lib/tracking";
-import { CheckoutButton, Counter, CtaToPlans, Footer, Section, StickyCta, Title, Trust, useReveal } from "@/components/ui";
+import { CTA_CLASS, Check, CheckoutButton, CtaToPlans, Divider, Footer, Rings, Shield, useLightbox, useReveal } from "@/components/ui";
+
+// Réplica de parejas365.lovable.app (mismas fuentes, tamaños, posiciones y colores).
+// Cambios pedidos: mockup nuevo, 2 planes lado a lado (Básico → Completo), garantía de 15 días.
 
 const usd = (n: number) => `US$ ${n.toFixed(2).replace(".", ",")}`;
-
-const DOLORES = [
-  "Llega el día del encuentro y todavía no sabes qué vas a enseñar.",
-  "Buscas ideas en internet y encuentras material suelto, sin orden ni base bíblica.",
-  "Repites las mismas dinámicas y sientes que el grupo pierde el interés.",
-  "Sirves con amor, pero con poco tiempo: trabajo, familia y ministerio a la vez.",
-];
+const img = (name: string, w: number) => `/img/lp/${name}-${w}.webp`;
+const srcSet = (name: string, ws: number[]) => ws.map((w) => `${img(name, w)} ${w}w`).join(", ");
 
 const INCLUIDO = [
-  { n: 24, t: "Encuentros completos", d: "Dos por mes durante 12 meses. Cada uno con texto bíblico, enseñanza en 3 puntos, dinámica, preguntas y oración." },
-  { n: 50, t: "Dinámicas", d: "Comunicación, conexión, diversión, vida espiritual, perdón y grupo grande." },
-  { n: 40, t: "Rompehielos", d: "Rápidos, para conocerse, en movimiento y con propósito espiritual." },
-  { n: 100, t: "Preguntas para conectar", d: "En 8 categorías, para los encuentros, las citas y la vida diaria." },
-  { n: 1, t: "Manual del Líder", d: "Cómo dirigir, crear un ambiente seguro, manejar situaciones difíciles y saber cuándo derivar." },
+  { n: "24", t: "Encuentros Completos", d: "Encuentros estructurados con tema, reflexión, actividad, preguntas, compromiso y cierre.", tag: "Hasta 2 encuentros por mes durante 12 meses.", wide: true },
+  { n: "50", t: "Dinámicas", d: "Actividades para comunicación, conexión, gratitud, fe, cooperación y crecimiento matrimonial." },
+  { n: "40", t: "Rompehielos", d: "Actividades rápidas para iniciar reuniones con un ambiente más ligero y participativo." },
+  { n: "100", t: "Preguntas para Conectar", d: "Preguntas organizadas para incentivar conversación, escucha y conexión entre los matrimonios." },
+  { n: "01", t: "Manual del Líder", d: "Orientaciones prácticas para preparar, organizar y facilitar los encuentros." },
 ];
 
-const DENTRO = [
-  { img: "dentro-encuentro-1", cap: "Encuentro 1: el diseño de Dios para el matrimonio" },
-  { img: "dentro-encuentro-2", cap: "Cada encuentro, paso a paso" },
-  { img: "dentro-manual", cap: "Manual del Líder" },
-  { img: "dentro-dinamicas", cap: "50 dinámicas con objetivo y tiempo" },
-  { img: "dentro-rompehielos", cap: "40 rompehielos" },
-  { img: "dentro-preguntas", cap: "100 preguntas para conectar" },
+const PASOS = [
+  ["01", "ELIGE", "Elige el encuentro o recurso según la necesidad de tu grupo."],
+  ["02", "PREPARA", "Revisa las instrucciones y separa lo que vas a utilizar."],
+  ["03", "APLICA", "Utiliza el contenido y las actividades siguiendo una estructura clara."],
 ];
 
-const AGENDA = [
-  ["10 min", "Bienvenida", "Recibe a cada pareja con un guion sencillo."],
-  ["10 min", "Rompehielos", "Risas y confianza desde el primer minuto."],
-  ["20 min", "Enseñanza", "Texto bíblico y tres puntos claros, listos para leer."],
-  ["20 min", "Dinámica en pareja", "El corazón del encuentro: una experiencia que se recuerda."],
-  ["15 min", "Conversación en grupos", "Preguntas que abren el corazón sin exponer a nadie."],
-  ["10 min", "Compromiso y oración", "Un paso práctico para la semana y oración de cierre."],
-];
-
-const MESES = [
-  ["Fundamentos", "El diseño de Dios · Prioridades"], ["Comunicación", "Palabras que edifican · Escuchar"],
-  ["Amor que se expresa", "Lenguajes del amor · Amor y respeto"], ["Conflictos sanos", "Discutir sin herir · El perdón"],
-  ["Finanzas y metas", "Finanzas en pareja · Sueños"], ["Amistad e intimidad", "Amigos para siempre · Gratitud"],
-  ["Vida espiritual", "Orar juntos · Familia de origen"], ["Familia", "Criar en unidad · Intimidad"],
-  ["Temporadas", "Bajo presión · Las estaciones"], ["Servicio", "Servirse · Confianza"],
-  ["Renovación", "Descanso · Sanar heridas"], ["Propósito", "Matrimonio con propósito · Renovación del pacto"],
+const BENEFICIOS = [
+  "Evita comenzar cada reunión desde cero",
+  "Reduce el tiempo buscando nuevas ideas",
+  "Ten variedad para diferentes momentos del año",
+  "Utiliza materiales organizados",
+  "Imprime solamente lo que necesites",
+  "Reutiliza los recursos dentro de tu ministerio",
 ];
 
 const BONOS = [
-  { img: "bono-1-kit-conexion", t: "Kit Conexión Durante la Semana", d: "30 tarjetas con versículos y 24 retos semanales para que el encuentro continúe en casa.", v: PRECIOS.bonos.conexion },
-  { img: "bono-2-kit-comunicacion", t: "Kit de Comunicación para Eventos", d: "12 invitaciones digitales para WhatsApp, 12 carteles para imprimir y mensajes listos para invitar y hacer seguimiento.", v: PRECIOS.bonos.comunicacion },
-  { img: "bono-3-kit-organizacion", t: "Kit de Organización Ministerial", d: "6 planners (anual, mensual, asistencia, presupuesto y más), 3 certificados y 8 separadores.", v: PRECIOS.bonos.organizacion },
+  { img: "bono-conexion", n: 1, r: 54, t: "KIT CONEXIÓN DURANTE LA SEMANA", s: "30 Tarjetas con Versículos + 24 Tarjetas de Retos", d: "Continúa la experiencia después de cada encuentro con mensajes bíblicos y pequeños retos para compartir con los matrimonios.", v: PRECIOS.bonos.conexion, alt: "Mockup del kit conexión durante la semana" },
+  { img: "bono-comunicacion", n: 2, r: 24, t: "KIT DE COMUNICACIÓN PARA EVENTOS", s: "12 Invitaciones + 12 Carteles", d: "Divulga reuniones, cenas y encuentros especiales sin tener que crear cada pieza visual desde cero.", v: PRECIOS.bonos.comunicacion, alt: "Mockup del kit de comunicación para eventos" },
+  { img: "bono-organizacion", n: 3, r: 17, t: "KIT DE ORGANIZACIÓN MINISTERIAL", s: "6 Planners + 3 Certificados + 8 Separadores", d: "Organiza materiales y actividades con herramientas prácticas y una presentación más cuidada.", v: PRECIOS.bonos.organizacion, alt: "Mockup del kit de organización ministerial" },
+];
+const TOTAL_BONOS = PRECIOS.bonos.conexion + PRECIOS.bonos.comunicacion + PRECIOS.bonos.organizacion;
+
+const DENTRO = [
+  { img: "manual-del-lider", title: "Manual del Líder", d: "Todo lo que necesitas para guiar encuentros que transforman matrimonios." },
+  { img: "ejemplo-encuentros", title: "24 Encuentros", d: "Encuentros estructurados para facilitar la preparación del líder." },
+  { img: "ejemplo-encuentros-libro", title: "Encuentros por dentro", d: "Reflexiones bíblicas, objetivos y materiales necesarios en cada encuentro." },
+  { img: "ejemplo-dinamicas", title: "50 Dinámicas", d: "Actividades explicadas paso a paso, con duración y aplicación práctica." },
+  { img: "ejemplo-rompehielos", title: "40 Rompehielos", d: "Actividades rápidas para iniciar reuniones con un ambiente participativo." },
+  { img: "ejemplo-preguntas", title: "100 Preguntas para Conectar", d: "Preguntas organizadas por categorías para incentivar la conversación." },
 ];
 
-const FUENTES = [
-  ["John Gottman y Nan Silver", "Siete reglas de oro para vivir en pareja"],
-  ["Gary Chapman", "Los 5 lenguajes del amor"],
-  ["Emerson Eggerichs", "Amor y respeto"],
-  ["Sue Johnson", "Abrázame fuerte"],
-  ["Timothy y Kathy Keller", "El significado del matrimonio"],
-];
+const PLAN_BASICO = {
+  si: ["Manual del Líder", "24 Encuentros Completos", "6 Hojas de Trabajo Imprimibles", "Acceso de por vida"],
+  no: ["50 Dinámicas", "40 Rompehielos", "100 Preguntas para Conectar", "95 Recursos Visuales"],
+};
+const PLAN_COMPLETO = ["Manual del Líder", "24 Encuentros Completos", "50 Dinámicas", "40 Rompehielos", "100 Preguntas para Conectar", "95 Recursos Visuales", "13 Recursos Digitales Organizados", "Acceso de por vida"];
 
 const FAQ = [
-  ["¿El material es físico o digital?", "Es 100 % digital (PDF). Recibes el acceso en tu correo electrónico inmediatamente después de la confirmación del pago."],
-  ["¿Puedo usarlo en el celular?", "Sí. Cada libro viene en dos formatos: una versión diseñada para leer cómodamente en el celular y una versión A5 para imprimir."],
-  ["¿Puedo imprimir y compartir con mi equipo?", "Puedes imprimir todas las copias que necesites para tu ministerio. No está permitida la reventa ni la distribución pública."],
-  ["¿Necesito experiencia para usarlo?", "No. Los encuentros están pensados para líderes sin experiencia previa: cada parte tiene tiempos, instrucciones y una nota para el líder."],
-  ["¿Sirve para cualquier iglesia?", "Está pensado para iglesias cristianas de diferentes denominaciones. Se centra en principios bíblicos sobre el matrimonio y usa la versión Reina-Valera 1960."],
-  ["¿En qué moneda pago?", "El precio está en dólares estadounidenses. Tu banco o tarjeta hace la conversión a tu moneda local; según tu país, el checkout puede mostrar otras formas de pago."],
-  ["¿Y si el material no es lo que esperaba?", "Tienes 7 días de garantía. Si no te sirve, solicitas el reembolso por la plataforma de pago y recibes el 100 % de tu dinero."],
-  ["¿Reemplaza la consejería matrimonial?", "No. Es un recurso para encuentros grupales. El Manual del Líder explica cuándo y cómo derivar casos que necesitan acompañamiento pastoral o profesional."],
+  ["¿El producto es físico o digital?", "Es un producto 100% digital. No recibirás ningún paquete físico. Después de la confirmación del pago recibirás las instrucciones para acceder a los archivos."],
+  ["¿En qué formato recibiré los materiales?", "Recibirás los materiales en formato digital PDF, listos para descargar, visualizar e imprimir."],
+  ["¿Puedo imprimir los materiales?", "Sí. Puedes descargar e imprimir los materiales que necesites para utilizarlos dentro de tu propio ministerio."],
+  ["¿Necesito experiencia para utilizarlo?", "No. El contenido fue organizado para facilitar su uso por líderes, coordinadores, pastores y matrimonios que colaboran en encuentros de pareja."],
+  ["¿Puedo utilizar los materiales más de una vez y tengo garantía?", `Sí. Tendrás acceso de por vida y podrás volver a utilizar los materiales dentro de tu propio ministerio. Además, tu compra cuenta con una garantía de ${GARANTIA_DIAS} días conforme a las condiciones del checkout. La reventa o redistribución de los archivos no está permitida.`],
 ];
+
+function SectionHead({ title, sub, eyebrow }: { title: React.ReactNode; sub?: string; eyebrow?: string }) {
+  return (
+    <div className="mx-auto max-w-3xl text-center">
+      {eyebrow && <p className="eyebrow">{eyebrow}</p>}
+      <h2 className={`${eyebrow ? "mt-3 " : ""}text-balance font-display text-2xl leading-tight text-wine-deep sm:text-3xl md:text-4xl`}>{title}</h2>
+      {sub && <p className="mt-4 text-sm leading-relaxed text-muted-foreground sm:text-base">{sub}</p>}
+    </div>
+  );
+}
+
+function MiraPorDentro({ onZoom }: { onZoom: (x: { src: string; alt: string }) => void }) {
+  const [i, setI] = useState(0);
+  const row = useRef<HTMLDivElement>(null);
+  const go = (d: number) => setI((p) => (p + d + DENTRO.length) % DENTRO.length);
+  const scrollBy = (d: number) => {
+    const el = row.current; if (!el) return;
+    const card = el.firstElementChild as HTMLElement | null;
+    el.scrollBy({ left: d * ((card?.offsetWidth ?? 300) + 16), behavior: "smooth" });
+  };
+  const cur = DENTRO[i];
+  return (
+    <>
+      <div className="relative mt-8 md:hidden">
+        <div ref={row} className="no-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2">
+          {DENTRO.map((x) => (
+            <figure key={x.img} className="w-[82%] shrink-0 snap-center rounded-2xl border border-gold-soft/60 bg-card p-3 shadow-soft">
+              <button type="button" className="block w-full" aria-label={`Ampliar imagen: ${x.title}`} onClick={() => onZoom({ src: img(x.img, 800), alt: x.title })}>
+                <img src={img(x.img, 480)} srcSet={srcSet(x.img, [480, 800])} sizes="82vw" alt={x.title} loading="lazy" decoding="async" width={1122} height={1402} className="w-full rounded-xl object-contain" />
+              </button>
+              <figcaption className="mt-3 text-center">
+                <span className="font-display text-lg text-wine">{x.title}</span>
+                <span className="mt-1 block text-sm text-muted-foreground">{x.d}</span>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+        <button type="button" onClick={() => scrollBy(-1)} aria-label="Material anterior" className="absolute left-1 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full border border-gold/60 bg-card/90 text-lg text-wine shadow-soft backdrop-blur">←</button>
+        <button type="button" onClick={() => scrollBy(1)} aria-label="Material siguiente" className="absolute right-1 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full border border-gold/60 bg-card/90 text-lg text-wine shadow-soft backdrop-blur">→</button>
+        <p className="mt-2 text-center text-xs text-muted-foreground">Usa las flechas o desliza • Toca para ampliar</p>
+      </div>
+
+      <div className="mt-10 hidden items-center gap-5 md:flex">
+        <button type="button" onClick={() => go(-1)} aria-label="Material anterior" className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-gold/60 bg-card text-wine transition-colors hover:bg-secondary">←</button>
+        <figure className="min-w-0 flex-1 rounded-3xl border border-gold-soft/60 bg-card p-5 shadow-premium">
+          <button type="button" className="block w-full" aria-label={`Ampliar imagen: ${cur.title}`} onClick={() => onZoom({ src: img(cur.img, 800), alt: cur.title })}>
+            <img src={img(cur.img, 800)} alt={cur.title} loading="lazy" decoding="async" width={1122} height={1402} className="mx-auto max-h-[32rem] w-auto max-w-full rounded-2xl object-contain" />
+          </button>
+          <figcaption className="mt-4 text-center">
+            <span className="font-display text-2xl text-wine">{cur.title}</span>
+            <span className="mt-1 block text-sm text-muted-foreground">{cur.d}</span>
+          </figcaption>
+        </figure>
+        <button type="button" onClick={() => go(1)} aria-label="Material siguiente" className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-gold/60 bg-card text-wine transition-colors hover:bg-secondary">→</button>
+      </div>
+      <div className="mt-5 hidden justify-center gap-2 md:flex">
+        {DENTRO.map((x, r) => (
+          <button key={x.img} type="button" onClick={() => setI(r)} aria-label={`Ir a ${x.title}`} className={`h-2 rounded-full transition-all ${r === i ? "w-7 bg-wine" : "w-2 bg-gold-soft"}`} />
+        ))}
+      </div>
+    </>
+  );
+}
 
 export default function Home() {
   useReveal();
   useEffect(() => { trackViewContent(); }, []);
   useEffect(() => setupBackRedirect(BACK_REDIRECT_PATH), []);
-  const [open, setOpen] = useState<number | null>(0);
+  const [open, setOpen] = useState<number | null>(null);
+  const lightbox = useLightbox();
 
   return (
     <main className="overflow-x-hidden">
-      {/* Barra superior */}
-      <div className="bg-vino-900 px-4 py-2 text-center font-sans text-[12px] font-semibold tracking-wide text-oro-light">
-        Para líderes de ministerios de matrimonios
-      </div>
-
       {/* HERO */}
-      <header className="relative bg-[radial-gradient(circle_at_50%_0%,#fff_0%,#FBF6EE_60%)] px-5 pb-10 pt-7 text-center">
-        <img src="/img/logo-96.webp" alt="Ministerio de Parejas 365" width={56} height={56} className="mx-auto mb-3 h-12 w-12 rounded-full shadow" />
-        <div className="eyebrow">Sistema para líderes de matrimonios</div>
-        <h1 className="mx-auto mt-3 max-w-lg text-[27px] font-bold leading-[1.14] sm:text-[36px]">
-          Un año completo de encuentros de parejas, listos para aplicar
-        </h1>
-        <p className="mx-auto mt-4 max-w-md text-[17px] text-tinta/80">
-          24 encuentros paso a paso, 50 dinámicas, 40 rompehielos y 100 preguntas. Deja de improvisar cada semana y dedica tu tiempo a <b>cuidar a las parejas</b>.
-        </p>
-        <img
-          src="/img/hero-640.webp" srcSet="/img/hero-640.webp 640w, /img/hero-1100.webp 1100w" sizes="(max-width: 640px) 100vw, 560px"
-          width={640} height={560} alt="Libros y celular con el sistema Ministerio de Parejas 365" fetchPriority="high"
-          className="mx-auto mt-5 w-full max-w-[560px]"
-        />
-        <div className="mx-auto mt-4 max-w-sm"><CtaToPlans /><Trust /></div>
-        <p className="mt-3 font-sans text-[13px] font-semibold text-vino">Desde US$ 9,90 · pago único</p>
-        <p className="mt-1 font-sans text-[12px] text-tinta/60">📱 Versión para celular + 🖨️ versión para imprimir</p>
-      </header>
-
-      {/* DOLOR */}
-      <div className="bg-white">
-        <Section track="dolor">
-          <Title eyebrow="¿Te identificas?">Liderar matrimonios es un privilegio. Prepararlo todo cada semana agota.</Title>
-          <ul className="space-y-3">
-            {DOLORES.map((d) => (
-              <li key={d} className="flex gap-3 rounded-xl bg-crema p-4"><span className="text-vino">✕</span><span>{d}</span></li>
-            ))}
-          </ul>
-          <p className="mt-6 text-center font-serif text-[24px] italic text-vino">No te falta llamado. Te falta un sistema.</p>
-        </Section>
-      </div>
-
-      {/* QUÉ RECIBES */}
-      <Section id="incluye" track="incluye">
-        <Title eyebrow="Todo listo para tus próximos encuentros" sub="Organizado para un año entero, para que solo tengas que elegir, preparar y aplicar.">Lo que vas a recibir</Title>
-        <div className="space-y-3">
-          {INCLUIDO.map((x) => (
-            <div key={x.t} className="card flex items-start gap-4">
-              <div className="min-w-[64px] text-center font-display text-[34px] font-bold leading-none text-oro"><Counter to={x.n} /></div>
-              <div><h3 className="text-[17px] font-bold">{x.t}</h3><p className="mt-1 text-[15px] text-tinta/80">{x.d}</p></div>
-            </div>
-          ))}
-          <div className="rounded-2xl border border-dashed border-oro bg-white/60 p-4 text-center font-sans text-[14px]">
-            + 6 hojas de trabajo imprimibles · versión celular y versión para imprimir
+      <section data-track="hero" className="relative overflow-hidden bg-cream-gradient section-pad">
+        <div aria-hidden="true" className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-gold-gradient opacity-40 blur-3xl" />
+        <div className="relative mx-auto max-w-3xl px-5 text-center">
+          <p className="eyebrow">Para líderes y ministerios de matrimonios</p>
+          <div className="mt-4 flex items-center justify-center gap-3">
+            <Rings className="h-6 w-10 text-gold" />
+            <p className="font-display text-lg uppercase tracking-[0.2em] text-wine">Ministerio de Parejas 365</p>
           </div>
-        </div>
-      </Section>
-
-      {/* MÉTODO */}
-      <div className="bg-vino-900 text-white">
-        <Section track="metodo">
-          <div className="mb-6 text-center">
-            <div className="eyebrow">Sistema Encuentro Listo</div>
-            <h2 className="mt-2 text-[26px] font-bold text-white">Menos tiempo preparando. Más tiempo cuidando a las personas.</h2>
+          <h1 className="mt-5 text-balance font-display text-3xl leading-[1.12] text-wine-deep sm:text-4xl md:text-5xl">Ten un año entero de encuentros matrimoniales planificados, organizados y listos para aplicar.</h1>
+          <p className="mt-5 text-base leading-relaxed text-muted-foreground sm:text-lg">Temas, dinámicas, preguntas, retos y recursos organizados para ayudarte a preparar encuentros con propósito sin perder horas buscando ideas o comenzando desde cero.</p>
+          <div className="relative mt-8">
+            <div aria-hidden="true" className="absolute inset-6 rounded-[2rem] bg-gold-gradient opacity-30 blur-2xl" />
+            <img
+              src={img("hero", 1100)} srcSet={srcSet("hero", [640, 1100, 1536])} sizes="(max-width: 768px) 100vw, 672px"
+              alt="Todo lo que recibes en Ministerio de Parejas 365: libros, encuentros, dinámicas, rompehielos, preguntas, tarjetas, invitaciones, certificados, planificadores y separadores"
+              width={1536} height={1024} fetchPriority="high" decoding="async"
+              className="relative mx-auto w-full max-w-2xl rounded-[1.75rem] border border-gold-soft/60 shadow-premium"
+            />
           </div>
-          <div className="grid gap-3">
-            {[["1", "Elige", "Abre el calendario anual y elige el encuentro del mes."], ["2", "Prepara", "Lee el encuentro, reúne materiales sencillos y ora por las parejas."], ["3", "Aplica", "Sigue el guion con tiempos sugeridos. Sin improvisar."]].map(([n, t, d]) => (
-              <div key={n} className="flex items-center gap-4 rounded-2xl border border-oro/40 bg-white/5 p-4">
-                <span className="flex h-11 w-11 flex-none items-center justify-center rounded-full bg-oro-light font-display text-[20px] font-bold text-vino-900">{n}</span>
-                <div><div className="font-display text-[19px] text-oro-light">{t}</div><p className="text-[15px] text-white/85">{d}</p></div>
-              </div>
-            ))}
-          </div>
-          <p className="mt-5 text-center text-[15px] text-white/80">¿Primera vez como líder? Los materiales están pensados para líderes sin experiencia previa.</p>
-        </Section>
-      </div>
-
-      {/* MIRA POR DENTRO */}
-      <section data-reveal data-track="por-dentro" className="py-12">
-        <div className="px-5"><Title eyebrow="Mira por dentro" sub="Desliza para ver las páginas →">Así es el material en tu celular</Title></div>
-        <div className="snap-row">
-          {DENTRO.map((x) => (
-            <figure key={x.img} className="rounded-3xl bg-white p-2 shadow-sm">
-              <img src={`/img/${x.img}-420.webp`} srcSet={`/img/${x.img}-420.webp 420w, /img/${x.img}-700.webp 700w`} sizes="300px" width={420} height={513} loading="lazy" alt={x.cap} className="rounded-2xl" />
-              <figcaption className="px-2 py-2 text-center font-sans text-[13px] font-semibold text-vino">{x.cap}</figcaption>
-            </figure>
-          ))}
+          <div className="mt-8 flex flex-col items-center"><CtaToPlans trust /></div>
         </div>
       </section>
 
-      {/* ESTRUCTURA */}
-      <div className="bg-white">
-        <Section track="estructura">
-          <Title eyebrow="75 a 90 minutos" sub="Cada uno de los 24 encuentros sigue la misma estructura probada.">Cómo es un encuentro</Title>
-          <ol className="relative ml-3 border-l-2 border-oro/50">
-            {AGENDA.map(([t, h, d]) => (
-              <li key={h} className="mb-5 ml-5">
-                <span className="absolute -left-[9px] mt-1.5 h-4 w-4 rounded-full border-2 border-white bg-vino" />
-                <div className="font-sans text-[12px] font-bold uppercase tracking-wider text-oro">{t}</div>
-                <div className="font-display text-[18px] text-vino">{h}</div>
-                <p className="text-[15px] text-tinta/80">{d}</p>
+      {/* LO QUE TENDRÁS */}
+      <section data-track="incluye" className="bg-background section-pad">
+        <div className="mx-auto max-w-6xl px-5">
+          <SectionHead title="Todo lo que tendrás listo para tus próximos encuentros." sub="Materiales organizados para que puedas elegir lo que necesitas sin comenzar cada reunión desde una página en blanco." />
+          <Divider />
+          <ul className="mt-10 grid gap-4 sm:grid-cols-2">
+            {INCLUIDO.map((x) => (
+              <li key={x.t} className={`flex flex-col rounded-2xl border border-gold-soft/60 bg-card p-5 shadow-soft sm:p-6 ${x.wide ? "sm:col-span-2" : ""}`}>
+                <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-4">
+                  <span className="shrink-0 font-display text-5xl leading-none text-gold-gradient sm:text-6xl">{x.n}</span>
+                  <h3 className="min-w-0 font-display text-xl leading-snug text-wine-deep sm:text-2xl">{x.t}</h3>
+                </div>
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">{x.d}</p>
+                {x.tag && <p className="mt-3 inline-flex rounded-full bg-secondary px-3 py-1.5 text-xs font-semibold text-wine sm:text-sm">{x.tag}</p>}
+              </li>
+            ))}
+          </ul>
+          <div className="mt-8 grid gap-3 sm:grid-cols-2">
+            <p className="rounded-2xl bg-wine-gradient px-5 py-4 text-center font-display text-xl text-primary-foreground sm:text-2xl">+ 95 recursos visuales incluidos</p>
+            <p className="rounded-2xl border border-gold/50 bg-secondary/70 px-5 py-4 text-center font-display text-xl text-wine sm:text-2xl">13 recursos digitales listos para usar</p>
+          </div>
+        </div>
+      </section>
+
+      {/* SISTEMA ENCUENTRO LISTO */}
+      <section data-track="metodo" className="bg-secondary/50 section-pad">
+        <div className="mx-auto max-w-5xl px-5">
+          <div className="mx-auto max-w-3xl text-center">
+            <h2 className="text-balance font-display text-2xl leading-tight text-wine-deep sm:text-3xl md:text-4xl">Menos tiempo preparando. Más tiempo cuidando a las personas.</h2>
+            <p className="mt-4 text-sm leading-relaxed text-muted-foreground sm:text-base">No necesitas más archivos sueltos. Necesitas recursos que puedas encontrar, preparar y utilizar.</p>
+            <p className="mt-5 inline-flex rounded-full border border-gold/60 bg-card px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-wine">Sistema Encuentro Listo</p>
+          </div>
+          <ol className="mt-9 grid gap-4 sm:grid-cols-3">
+            {PASOS.map(([n, t, d]) => (
+              <li key={n} className="rounded-2xl border border-gold-soft/60 bg-card p-5 text-center shadow-soft">
+                <p className="font-display text-3xl text-gold">{n}</p>
+                <p className="mt-1 text-sm font-semibold uppercase tracking-[0.16em] text-wine">{t}</p>
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{d}</p>
               </li>
             ))}
           </ol>
-        </Section>
-      </div>
-
-      {/* CALENDARIO */}
-      <Section track="calendario">
-        <Title eyebrow="12 meses · 24 encuentros" sub="Una progresión pensada para que el grupo crezca mes a mes.">Tu año ya está planificado</Title>
-        <div className="grid grid-cols-2 gap-2">
-          {MESES.map(([t, d], i) => (
-            <div key={t} className="rounded-xl border border-[#eadfcf] bg-white p-3">
-              <div className="font-sans text-[11px] font-bold uppercase tracking-wider text-oro">Mes {i + 1}</div>
-              <div className="font-display text-[15px] leading-tight text-vino">{t}</div>
-              <div className="mt-1 text-[12.5px] leading-snug text-tinta/70">{d}</div>
-            </div>
-          ))}
+          <ul className="mt-8 grid gap-3 sm:grid-cols-2">
+            {BENEFICIOS.map((x) => (
+              <li key={x} className="flex items-start gap-2.5 rounded-xl bg-card px-4 py-3 text-sm text-foreground shadow-soft sm:text-base"><Check /><span className="min-w-0">{x}</span></li>
+            ))}
+          </ul>
+          <div className="mt-8 rounded-2xl border border-gold/50 bg-card p-6 text-center">
+            <p className="font-display text-xl text-wine-deep sm:text-2xl">¿Necesito experiencia?</p>
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">No. Los materiales fueron organizados para facilitar su uso por líderes, coordinadores, pastores y matrimonios que sirven en el ministerio.</p>
+          </div>
         </div>
-        <div className="mx-auto mt-6 max-w-sm"><CtaToPlans /></div>
-      </Section>
+      </section>
 
       {/* BONOS */}
-      <div className="bg-[linear-gradient(180deg,#fff,#FBF6EE)]">
-        <Section track="bonos">
-          <Title eyebrow="Incluidos en el plan Completo" sub="Recursos para que el ministerio funcione fuera del encuentro también.">3 bonos de regalo</Title>
-          <div className="space-y-5">
-            {BONOS.map((b, i) => (
-              <div key={b.t} className="card overflow-hidden !p-0">
-                <img src={`/img/${b.img}-480.webp`} srcSet={`/img/${b.img}-480.webp 480w, /img/${b.img}-800.webp 800w`} sizes="(max-width: 640px) 100vw, 520px" width={480} height={460} loading="lazy" alt={b.t} className="mx-auto w-full bg-crema" />
-                <div className="p-5">
-                  <div className="eyebrow">Bono {i + 1}</div>
-                  <h3 className="mt-1 text-[19px] font-bold">{b.t}</h3>
-                  <p className="mt-2 text-[15px] text-tinta/80">{b.d}</p>
-                  <div className="mt-3 flex items-center justify-between font-sans text-[13px]">
-                    <span className="text-tinta/60">Valor individual: {usd(b.v)}</span>
-                    <span className="rounded-full bg-vino px-3 py-1 font-bold text-white">Incluido</span>
+      <section data-track="bonos" className="bg-background section-pad">
+        <div className="mx-auto max-w-6xl px-5">
+          <SectionHead eyebrow="Y eso no es todo" title="También recibirás 95 recursos visuales para completar tus encuentros." sub="Materiales para continuar la experiencia, divulgar actividades y mantener tu ministerio organizado." />
+          <div className="mt-10 space-y-6">
+            {BONOS.map((b) => (
+              <article key={b.img} className="grid items-center gap-6 rounded-3xl border border-gold/45 bg-card p-5 shadow-soft sm:p-7 md:grid-cols-[1fr_1.1fr]">
+                <img src={img(b.img, 480)} srcSet={srcSet(b.img, [480, 800])} sizes="(max-width: 768px) 384px, 500px" alt={b.alt} loading="lazy" decoding="async" width={1122} height={1402} className="mx-auto w-full max-w-sm rounded-2xl border border-gold-soft/60 object-contain md:max-w-none" />
+                <div>
+                  <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:gap-3">
+                    <span className="inline-block rounded-full bg-wine-gradient px-3 py-1 text-[0.65rem] font-semibold tracking-[0.18em] text-primary-foreground">BONO #{b.n}</span>
+                    <span className="inline-block rounded-full border border-gold/60 px-3 py-1 text-[0.65rem] font-semibold tracking-[0.16em] text-wine">{b.r} RECURSOS</span>
+                  </div>
+                  <h3 className="mt-3 font-display text-xl leading-snug text-wine-deep sm:text-2xl">{b.t}</h3>
+                  <p className="mt-1 text-sm font-semibold text-brown-warm">{b.s}</p>
+                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">{b.d}</p>
+                  <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2">
+                    <p className="text-sm text-muted-foreground">Valor estimado: <span className="strike-red font-semibold">{usd(b.v)}</span></p>
+                    <p className="text-sm font-semibold tracking-[0.1em] text-wine">HOY: <span className="font-display text-2xl uppercase tracking-normal text-gold-gradient">GRATIS</span></p>
                   </div>
                 </div>
-              </div>
+              </article>
             ))}
           </div>
-        </Section>
-      </div>
-
-      {/* FUNDAMENTOS / AUTORIDAD */}
-      <Section track="fundamentos">
-        <Title eyebrow="Base sólida" sub="Cada encuentro parte de la Biblia (RVR1960) y se apoya en obras reconocidas sobre el matrimonio, citadas con claridad.">Fundamentado en la Palabra y en autores reconocidos</Title>
-        <div className="space-y-2">
-          {FUENTES.map(([a, l]) => (
-            <div key={a} className="flex items-center gap-3 rounded-xl bg-white p-3 shadow-sm">
-              <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-crema text-[18px]">📖</span>
-              <div><div className="font-serif text-[18px] italic leading-tight text-vino">{l}</div><div className="font-sans text-[12.5px] text-tinta/70">{a}</div></div>
+          <div className="mt-8 rounded-3xl bg-wine-gradient p-6 text-center shadow-premium">
+            <p className="font-display text-2xl uppercase tracking-[0.06em] text-primary-foreground sm:text-3xl">95 recursos visuales</p>
+            <div className="mt-3 flex flex-col items-center justify-center gap-2 sm:flex-row sm:gap-5">
+              <p className="text-sm text-primary-foreground/85 sm:text-base">Valor estimado total: <span className="strike-red font-semibold text-primary-foreground">{usd(TOTAL_BONOS)}</span></p>
+              <p className="rounded-full border border-gold/70 px-4 py-1.5 text-sm font-semibold tracking-[0.14em] text-gold">INCLUIDOS EN EL PLAN COMPLETO</p>
             </div>
-          ))}
+          </div>
+          <div className="mt-10 flex justify-center"><CtaToPlans /></div>
         </div>
-        <p className="mt-4 text-center text-[13px] text-tinta/60">Preparado por el Equipo Editorial de Ministerio de Parejas 365. Los autores citados no están afiliados a este producto ni lo respaldan.</p>
-        <p className="mt-2 text-center"><Link to="/fuentes" className="font-sans text-[14px] font-semibold text-vino underline underline-offset-4">Ver fuentes y agradecimientos →</Link></p>
-      </Section>
+      </section>
 
-      {/* TESTIMONIOS (reales y autorizados) */}
-      {TESTIMONIOS.length > 0 && (
-        <section data-reveal data-track="testimonios" className="bg-white py-12">
-          <div className="px-5"><Title eyebrow="Testimonios" sub="Desliza para ver más →">Lo que dicen quienes ya conocen Ministerio de Parejas 365</Title></div>
-          <div className="snap-row">
-            {TESTIMONIOS.map((t) => (
-              <figure key={t.nombre} className="overflow-hidden rounded-2xl border border-[#eadfcf] bg-crema shadow-sm">
-                <img src={t.img} alt={`Mensaje de ${t.nombre}`} loading="lazy" decoding="async" width={340} height={420} className="h-auto w-full" />
-                <figcaption className="px-3 py-2 text-center font-sans text-[13px] font-semibold text-vino">{t.nombre}</figcaption>
+      {/* MIRA POR DENTRO */}
+      <section data-track="por-dentro" className="bg-secondary/50 section-pad">
+        <div className="mx-auto max-w-5xl px-5">
+          <SectionHead title="Mira por dentro lo que vas a recibir." sub="Material real. Sin sorpresas después de la compra." />
+          <Divider />
+          <MiraPorDentro onZoom={lightbox.open} />
+        </div>
+      </section>
+
+      {/* TESTIMONIOS */}
+      <section data-track="testimonios" className="bg-background section-pad">
+        <div className="mx-auto max-w-6xl px-5">
+          <div className="mx-auto max-w-2xl text-center">
+            <p className="text-[0.65rem] font-semibold uppercase tracking-[0.22em] text-brown-warm">Experiencias reales</p>
+            <h2 className="mt-3 text-balance font-display text-2xl leading-tight text-wine-deep sm:text-3xl">Lo que dicen quienes ya conocen Ministerio de Parejas 365</h2>
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">Conoce la experiencia de líderes y matrimonios que utilizaron los materiales.</p>
+          </div>
+        </div>
+        <div className="fb-marquee mt-8">
+          <div className="fb-marquee-track">
+            {[...TESTIMONIOS, ...TESTIMONIOS].map((t, k) => (
+              <figure key={k} aria-hidden={k >= TESTIMONIOS.length ? true : undefined} className="w-[240px] shrink-0 overflow-hidden rounded-2xl border border-gold-soft/60 bg-card shadow-premium sm:w-[290px]">
+                <img src={img(t.img, 600)} srcSet={srcSet(t.img, [300, 600])} sizes="(max-width: 640px) 240px, 290px" alt={`Mensaje de ${t.nombre}`} loading="lazy" decoding="async" width={768} height={1376} className="block h-[426px] w-full object-cover object-top sm:h-[515px]" />
               </figure>
             ))}
           </div>
-          <div className="mx-auto mt-4 max-w-sm px-5"><CtaToPlans>Quiero mis encuentros listos</CtaToPlans></div>
-        </section>
-      )}
+        </div>
+        <div className="mx-auto mt-8 flex max-w-6xl flex-col items-center px-5">
+          <p className="max-w-xl text-balance text-center font-display text-lg text-wine sm:text-xl">Ahora tú también puedes tener tus próximos encuentros mucho más preparados.</p>
+        </div>
+      </section>
 
-      {/* PARA QUIÉN */}
-      <div className="bg-white">
-        <Section track="para-quien">
-          <Title eyebrow="Para quién es">¿Este material es para ti?</Title>
-          <div className="card">
-            {["Líderes de ministerios de matrimonios, nuevos o con experiencia.", "Pastores que quieren fortalecer los matrimonios de su iglesia.", "Parejas que dirigen células o grupos pequeños de matrimonios.", "Iglesias que quieren iniciar un ministerio de parejas."].map((x) => (
-              <p key={x} className="flex gap-3 py-1.5"><span className="text-green-700">✓</span>{x}</p>
-            ))}
-            <div className="gold-rule my-3" />
-            {["No es terapia de pareja ni consejería profesional.", "No es un curso en video: es material listo para leer y aplicar."].map((x) => (
-              <p key={x} className="flex gap-3 py-1.5 text-tinta/70"><span className="text-vino">✕</span>{x}</p>
-            ))}
-          </div>
-        </Section>
-      </div>
-
-      {/* PLANES */}
-      <section id="planes" data-reveal data-track="planes" className="bg-[radial-gradient(circle_at_50%_0%,#8A1D33,#6E1426_45%,#4A0D19)] px-5 py-14">
-        <div className="mx-auto max-w-xl">
-          <div className="mb-8 text-center">
-            <div className="eyebrow !text-oro-light">Elige tu plan</div>
-            <h2 className="mt-2 text-[28px] font-bold text-white">Empieza hoy tu año de encuentros</h2>
-            <p className="mt-2 text-[15px] text-white/80">Pago único · Acceso inmediato · Tuyo para siempre</p>
+      {/* PLANES — lado a lado: Básico y Completo */}
+      <section id="oferta" data-track="planes" className="relative scroll-mt-4 overflow-hidden bg-wine-gradient section-pad">
+        <div aria-hidden="true" className="pointer-events-none absolute -left-20 top-10 h-64 w-64 rounded-full bg-gold-gradient opacity-20 blur-3xl" />
+        <div className="relative mx-auto max-w-5xl px-3 sm:px-5">
+          <div className="text-center">
+            <Rings className="mx-auto h-7 w-12 text-gold" />
+            <h2 className="mt-3 font-display text-2xl uppercase tracking-[0.1em] text-primary-foreground sm:text-3xl">Elige tu plan</h2>
+            <p className="mt-1 text-xs font-semibold uppercase tracking-[0.22em] text-gold-soft">Sistema Encuentro Listo</p>
+            <p className="mx-auto mt-4 max-w-xl text-balance font-display text-xl leading-snug text-primary-foreground/90 sm:text-2xl">Ten tus próximos encuentros mucho más preparados desde hoy.</p>
           </div>
 
-          {/* Completo primero en el celular */}
-          <div className="relative rounded-3xl border-2 border-oro-light bg-white p-6 shadow-2xl">
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-oro-light px-4 py-1 font-sans text-[12px] font-bold uppercase tracking-wider text-vino-900">⭐ Recomendado</div>
-            <h3 className="text-center text-[22px] font-bold">Plan Completo</h3>
-            <img src="/img/plan-completo-480.webp" srcSet="/img/plan-completo-480.webp 480w, /img/plan-completo-800.webp 800w" sizes="(max-width: 640px) 90vw, 480px" width={480} height={366} loading="lazy" alt="Plan Completo" className="mx-auto my-3" />
-            <ul className="space-y-1.5 text-[15px]">
-              {["Manual del Líder", "24 encuentros completos", "50 dinámicas", "40 rompehielos", "100 preguntas para conectar", "6 hojas de trabajo imprimibles", "Versión celular + versión para imprimir"].map((x) => <li key={x} className="flex gap-2"><span className="text-green-700">✓</span>{x}</li>)}
-              {BONOS.map((b, i) => <li key={b.t} className="flex gap-2 font-semibold text-vino"><span>🎁</span>Bono {i + 1}: {b.t}</li>)}
-            </ul>
-            <div className="mt-5 text-center">
-              <div className="font-sans text-[13px] text-tinta/60">Pago único</div>
-              <div className="font-display text-[46px] font-bold leading-none text-vino">{usd(PRECIOS.completo)}</div>
-              <div className="mt-1 font-sans text-[13px] font-semibold text-green-800">Solo {usd(PRECIOS.completo - PRECIOS.basico)} más que el Básico y te llevas todo</div>
+          <div className="mt-8 grid grid-cols-2 items-stretch gap-2.5 sm:gap-6">
+            {/* BÁSICO */}
+            <div className="flex flex-col rounded-[1.25rem] border border-gold/40 bg-card p-3 shadow-premium sm:rounded-[2rem] sm:p-8">
+              <div className="text-center">
+                <span className="inline-block rounded-full bg-secondary px-2.5 py-1 text-[0.6rem] font-semibold tracking-[0.16em] text-wine sm:px-4 sm:text-[0.65rem]">PLAN BÁSICO</span>
+                <h3 className="mt-3 font-display text-lg uppercase leading-tight tracking-[0.06em] text-wine-deep sm:text-2xl">Encuentros Listos</h3>
+              </div>
+              <ul className="mt-4 grid gap-1.5 sm:mt-6 sm:gap-2">
+                {PLAN_BASICO.si.map((x) => (
+                  <li key={x} className="flex items-start gap-1.5 text-[0.8rem] leading-snug text-foreground sm:gap-2 sm:text-base"><Check className="mt-px h-4 w-4 shrink-0 text-gold sm:h-5 sm:w-5" /><span className="min-w-0">{x}</span></li>
+                ))}
+                {PLAN_BASICO.no.map((x) => (
+                  <li key={x} className="flex items-start gap-1.5 text-[0.8rem] leading-snug text-muted-foreground/70 line-through sm:gap-2 sm:text-base"><span aria-hidden="true" className="grid h-4 w-4 shrink-0 place-items-center text-xs sm:h-5 sm:w-5">✕</span><span className="min-w-0">{x}</span></li>
+                ))}
+              </ul>
+              <div className="mt-auto pt-5">
+                <div className="rounded-2xl bg-secondary/70 p-3 text-center sm:p-5">
+                  <p className="text-[0.6rem] uppercase tracking-[0.16em] text-muted-foreground sm:text-xs">Pago único</p>
+                  <p className="mt-1 font-display text-[2rem] leading-none text-wine sm:text-5xl">{usd(PRECIOS.basico)}</p>
+                </div>
+                <div className="mt-4">
+                  <CheckoutButton href={CHECKOUT.basico} plan="basico" value={PRECIOS.basico} className={`${CTA_CLASS} min-h-14! px-2! py-3! text-[0.72rem]! tracking-[0.06em]! sm:px-6! sm:text-sm!`}>
+                    <span className="pointer-events-none">Quiero el Básico</span>
+                  </CheckoutButton>
+                </div>
+              </div>
             </div>
-            <div className="mt-4"><CheckoutButton href={CHECKOUT.completo} plan="completo" value={PRECIOS.completo}>Quiero el plan Completo →</CheckoutButton></div>
-            <Trust />
+
+            {/* COMPLETO */}
+            <div className="relative flex flex-col rounded-[1.25rem] border-2 border-gold bg-card p-3 shadow-premium sm:rounded-[2rem] sm:p-8">
+              <span className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-gold-gradient px-3 py-1 text-[0.6rem] font-bold tracking-[0.14em] text-wine-deep shadow-soft sm:text-[0.65rem]">MÁS ELEGIDO</span>
+              <div className="text-center">
+                <span className="inline-block rounded-full bg-wine-gradient px-2.5 py-1 text-[0.6rem] font-semibold tracking-[0.16em] text-primary-foreground sm:px-4 sm:text-[0.65rem]">ACCESO COMPLETO</span>
+                <h3 className="mt-3 font-display text-lg uppercase leading-tight tracking-[0.06em] text-wine-deep sm:text-2xl">Ministerio de Parejas 365</h3>
+              </div>
+              <ul className="mt-4 grid gap-1.5 sm:mt-6 sm:gap-2">
+                {PLAN_COMPLETO.map((x) => (
+                  <li key={x} className="flex items-start gap-1.5 text-[0.8rem] leading-snug text-foreground sm:gap-2 sm:text-base"><Check className="mt-px h-4 w-4 shrink-0 text-gold sm:h-5 sm:w-5" /><span className="min-w-0">{x}</span></li>
+                ))}
+              </ul>
+              <div className="mt-auto pt-5">
+                <div className="rounded-2xl bg-secondary/70 p-3 text-center sm:p-5">
+                  <p className="text-[0.6rem] uppercase tracking-[0.16em] text-muted-foreground sm:text-xs">De <span className="font-semibold text-brown-warm line-through decoration-wine/70 decoration-2">{usd(PRECIOS.basico + TOTAL_BONOS)}</span> por solo</p>
+                  <p className="mt-1 font-display text-[2rem] leading-none text-wine sm:text-5xl">{usd(PRECIOS.completo)}</p>
+                </div>
+                <div className="mt-4">
+                  <CheckoutButton href={CHECKOUT.completo} plan="completo" value={PRECIOS.completo} className={`${CTA_CLASS} min-h-14! px-2! py-3! text-[0.72rem]! tracking-[0.06em]! sm:px-6! sm:text-sm!`}>
+                    <span className="pointer-events-none">Quiero el Completo</span>
+                  </CheckoutButton>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div className="mt-6 rounded-3xl bg-white/95 p-6">
-            <h3 className="text-center text-[20px] font-bold">Plan Básico</h3>
-            <img src="/img/plan-basico-480.webp" srcSet="/img/plan-basico-480.webp 480w, /img/plan-basico-800.webp 800w" sizes="(max-width: 640px) 80vw, 400px" width={480} height={453} loading="lazy" alt="Plan Básico" className="mx-auto my-3 w-3/4" />
-            <ul className="space-y-1.5 text-[15px]">
-              {["Manual del Líder", "24 encuentros completos", "6 hojas de trabajo imprimibles", "Versión celular + versión para imprimir"].map((x) => <li key={x} className="flex gap-2"><span className="text-green-700">✓</span>{x}</li>)}
-              {["50 dinámicas, 40 rompehielos y 100 preguntas", "Los 3 bonos"].map((x) => <li key={x} className="flex gap-2 text-tinta/45 line-through"><span>✕</span>{x}</li>)}
-            </ul>
-            <div className="mt-5 text-center"><div className="font-display text-[36px] font-bold leading-none text-vino">{usd(PRECIOS.basico)}</div></div>
-            <div className="mt-4"><CheckoutButton href={CHECKOUT.basico} plan="basico" value={PRECIOS.basico}><span className="normal-case">Quiero solo el Básico</span></CheckoutButton></div>
-          </div>
-          <p className="mt-5 text-center font-sans text-[12.5px] text-white/75">Precios en dólares estadounidenses. Tu banco hace la conversión a tu moneda local.</p>
+          <p className="mx-auto mt-6 max-w-md text-center text-xs leading-relaxed text-primary-foreground/80 sm:text-sm">Puedes pagar en tu moneda local según las opciones disponibles en el checkout.</p>
+          <p className="mt-2 text-center text-xs text-primary-foreground/80 sm:text-sm">Pago seguro • Acceso inmediato • Garantía de {GARANTIA_DIAS} días</p>
         </div>
       </section>
 
       {/* GARANTÍA */}
-      <Section track="garantia" className="text-center">
-        <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full border-4 border-oro bg-white font-display text-[15px] font-bold leading-tight text-vino shadow">7 DÍAS<br />DE GARANTÍA</div>
-        <h2 className="mt-5 text-[24px] font-bold">Conoce todo el material con tranquilidad</h2>
-        <p className="mt-3 text-[16px] text-tinta/80">Tienes 7 días para revisar cada encuentro. Si sientes que no es para tu ministerio, solicitas el reembolso por la plataforma de pago y te devolvemos el 100 % de tu dinero. Sin preguntas incómodas.</p>
-      </Section>
+      <section data-track="garantia" className="bg-background section-pad">
+        <div className="mx-auto max-w-3xl px-5 text-center">
+          <div className="mx-auto grid h-36 w-36 place-items-center rounded-full border-2 border-gold/70 bg-secondary/70 shadow-soft">
+            <div>
+              <Shield className="mx-auto h-8 w-8 text-wine" />
+              <p className="mt-1 font-display text-sm uppercase leading-tight tracking-[0.12em] text-wine">{GARANTIA_DIAS} días de<br />garantía</p>
+            </div>
+          </div>
+          <h2 className="mt-8 font-display text-2xl leading-tight text-wine-deep sm:text-3xl md:text-4xl">Conoce todo el material con tranquilidad.</h2>
+          <p className="mt-5 text-sm leading-relaxed text-muted-foreground sm:text-base">Después de confirmar tu compra tendrás acceso a Ministerio de Parejas 365 para revisar todo el contenido.</p>
+          <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">Si dentro de los primeros {GARANTIA_DIAS} días consideras que el producto no corresponde a lo presentado en esta página, podrás solicitar el reembolso conforme al procedimiento de la plataforma de pago.</p>
+          <p className="mx-auto mt-6 inline-flex items-center gap-2 rounded-full border border-gold/60 bg-card px-5 py-2.5 text-sm font-semibold text-wine sm:text-base"><Shield className="h-5 w-5 text-gold" />{GARANTIA_DIAS} días para decidir.</p>
+        </div>
+      </section>
 
       {/* FAQ */}
-      <div className="bg-white">
-        <Section track="faq">
-          <Title eyebrow="Dudas frecuentes">Preguntas frecuentes</Title>
-          <div className="divide-y divide-[#eadfcf] rounded-2xl border border-[#eadfcf] bg-white">
-            {FAQ.map(([q, a], i) => (
-              <div key={q}>
-                <button onClick={() => setOpen(open === i ? null : i)} className="flex w-full items-center justify-between gap-4 p-4 text-left font-sans text-[15px] font-semibold text-vino" aria-expanded={open === i}>
-                  {q}<span className={`text-oro transition-transform ${open === i ? "rotate-45" : ""}`}>＋</span>
-                </button>
-                <div className={`grid transition-all duration-300 ${open === i ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}><p className="overflow-hidden px-4 text-[15px] text-tinta/80"><span className="block pb-4">{a}</span></p></div>
-              </div>
-            ))}
+      <section data-track="faq" className="bg-secondary/50 section-pad">
+        <div className="mx-auto max-w-3xl px-5">
+          <h2 className="text-center font-display text-2xl leading-tight text-wine-deep sm:text-3xl md:text-4xl">¿Todavía tienes alguna duda?</h2>
+          <p className="mt-4 text-center text-sm text-muted-foreground sm:text-base">Respuestas rápidas antes de comenzar.</p>
+          <div className="mt-8 space-y-3">
+            {FAQ.map(([q, a], r) => {
+              const isOpen = open === r;
+              return (
+                <div key={q} className="overflow-hidden rounded-2xl border border-gold-soft/70 bg-card shadow-soft">
+                  <button type="button" onClick={() => setOpen(isOpen ? null : r)} aria-expanded={isOpen} className="flex w-full items-center justify-between gap-4 px-5 py-5 text-left">
+                    <span className="min-w-0 font-display text-lg leading-snug text-wine-deep">{q}</span>
+                    <span aria-hidden="true" className={`shrink-0 text-xl text-gold transition-transform ${isOpen ? "rotate-45" : ""}`}>+</span>
+                  </button>
+                  {isOpen && <p className="px-5 pb-5 text-sm leading-relaxed text-muted-foreground sm:text-base">{a}</p>}
+                </div>
+              );
+            })}
           </div>
-        </Section>
-      </div>
-
-      {/* CIERRE */}
-      <Section track="cierre" className="text-center">
-        <p className="font-serif text-[22px] italic text-vino">«Y si alguno prevaleciere contra uno, dos le resistirán; y cordón de tres dobleces no se rompe pronto.»</p>
-        <p className="mt-2 font-sans text-[12px] font-bold uppercase tracking-widest text-oro">Eclesiastés 4:12 · RVR1960</p>
-        <h2 className="mt-6 text-[24px] font-bold">Tu próximo encuentro puede estar listo hoy</h2>
-        <div className="mx-auto mt-5 max-w-sm"><CtaToPlans /><Trust /></div>
-      </Section>
+          <div className="mt-10 flex justify-center"><CtaToPlans /></div>
+        </div>
+      </section>
 
       <Footer />
-      <StickyCta />
+      {lightbox.node}
     </main>
   );
 }

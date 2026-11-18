@@ -1,6 +1,6 @@
 import { useEffect } from "react";
-import { CHECKOUT, PRECIOS } from "@/config";
-import { logEvent } from "@/lib/tracking";
+import { CHECKOUT, GARANTIA_DIAS, PRECIOS } from "@/config";
+import { logEvent, trackPageContent } from "@/lib/tracking";
 import { CheckoutButton, Footer, Trust } from "@/components/ui";
 
 const usd = (n: number) => `US$ ${n.toFixed(2).replace(".", ",")}`;
@@ -9,17 +9,17 @@ const usd = (n: number) => `US$ ${n.toFixed(2).replace(".", ",")}`;
 // Sin cronómetros ni escasez falsa.
 export default function UltimaOportunidad() {
   useEffect(() => {
-    try { window.fbq?.("track", "ViewContent", { content_name: "Back redirect", value: PRECIOS.basico, currency: PRECIOS.moneda }); } catch { /* ignore */ }
+    trackPageContent("Back redirect", PRECIOS.basico);
     logEvent("view_content", { page: "ultima-oportunidad" });
   }, []);
 
   return (
     <main>
-      <section className="bg-[radial-gradient(circle_at_50%_0%,#8A1D33,#6E1426_45%,#4A0D19)] px-5 pb-10 pt-8 text-center text-white">
+      <section className="bg-wine-gradient px-5 pb-10 pt-8 text-center text-white">
         <img src="/img/logo-96.webp" alt="Ministerio de Parejas 365" width={56} height={56} className="mx-auto mb-3 h-14 w-14 rounded-full" />
-        <div className="eyebrow !text-oro-light">Antes de irte</div>
+        <div className="eyebrow text-gold-soft!">Antes de irte</div>
         <h1 className="mx-auto mt-3 max-w-md text-[26px] font-bold leading-tight text-white">Empieza con lo esencial por solo {usd(PRECIOS.basico)}</h1>
-        <p className="mx-auto mt-3 max-w-md text-[16px] text-white/85">Manual del Líder + 24 encuentros completos para todo el año. Pago único, acceso inmediato y 7 días de garantía.</p>
+        <p className="mx-auto mt-3 max-w-md text-[16px] text-white/85">Manual del Líder + 24 encuentros completos para todo el año. Pago único, acceso inmediato y {GARANTIA_DIAS} días de garantía.</p>
         <img src="/img/plan-basico-480.webp" srcSet="/img/plan-basico-480.webp 480w, /img/plan-basico-800.webp 800w" sizes="(max-width: 640px) 80vw, 400px" width={480} height={453} alt="Plan Básico" className="mx-auto mt-4 w-4/5 max-w-[360px]" />
         <div className="mx-auto mt-5 max-w-sm">
           <CheckoutButton href={CHECKOUT.basico} plan="basico" value={PRECIOS.basico} gold>Quiero empezar por {usd(PRECIOS.basico)} →</CheckoutButton>
