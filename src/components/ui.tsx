@@ -74,18 +74,19 @@ export function CtaToPlans({ children = "QUIERO MIS ENCUENTROS LISTOS", trust = 
   );
 }
 
-/** Botón que abre el checkout: el enlace ya sale con las UTMs, el evento se dispara en el
- *  primer toque (pointerdown) y la navegación es inmediata. */
+/** Botón que abre el checkout. El enlace se crea UNA vez con las UTMs guardadas (respaldo) y
+ *  después NUNCA se reescribe: el script de UTMs de la UTMify lo modifica para incluir el ID del
+ *  lead en utm_source y el fbclid en utm_content. Si React o un onClick cambian el href, se pierde
+ *  ese ID y la UTMify no puede vincular la compra de la Cakto al clic del anuncio. */
 export function CheckoutButton({ href, plan, value, children, gold = false, className }: { href: string; plan: "basico" | "completo" | "upsell"; value: number; children: ReactNode; gold?: boolean; className?: string }) {
-  const [url, setUrl] = useState(href);
-  useEffect(() => { setUrl(checkoutUrl(href)); }, [href]);
+  const [url] = useState(() => checkoutUrl(href));
   const fire = () => trackCheckoutClick(plan, value);
   return (
     <a
       href={url}
       rel="noopener"
       onPointerDown={fire}
-      onClick={(e) => { fire(); (e.currentTarget as HTMLAnchorElement).href = checkoutUrl(href); }}
+      onClick={fire}
       className={className ?? `btn-cta ${gold ? "btn-gold" : ""}`}
       data-plan={plan}
     >

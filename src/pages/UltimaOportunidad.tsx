@@ -22,7 +22,7 @@ export default function UltimaOportunidad() {
         <p className="mx-auto mt-3 max-w-md text-[16px] text-white/85">Manual del Líder + 24 encuentros completos para todo el año. Pago único, acceso inmediato y {GARANTIA_DIAS} días de garantía.</p>
         <img src="/img/plan-basico-480.webp" srcSet="/img/plan-basico-480.webp 480w, /img/plan-basico-800.webp 800w" sizes="(max-width: 640px) 80vw, 400px" width={480} height={453} alt="Plan Básico" className="mx-auto mt-4 w-4/5 max-w-[360px]" />
         <div className="mx-auto mt-5 max-w-sm">
-          <CheckoutButton href={CHECKOUT.basico} plan="basico" value={PRECIOS.basico} gold>Quiero empezar por {usd(PRECIOS.basico)} →</CheckoutButton>
+          <CheckoutButton href={CHECKOUT.basico} plan="basico" value={PRECIOS.basico} gold>Quiero el Básico</CheckoutButton>
           <Trust light />
         </div>
       </section>
@@ -37,8 +37,8 @@ export default function UltimaOportunidad() {
           </ul>
         </div>
         <div className="mt-6 rounded-2xl border-2 border-oro bg-white p-5 text-center">
-          <p className="font-sans text-[14px] text-tinta/80">¿Prefieres todo el sistema con dinámicas, rompehielos, 100 preguntas y los 3 bonos?</p>
-          <div className="mt-3"><CheckoutButton href={CHECKOUT.completo} plan="completo" value={PRECIOS.completo}>Plan Completo por {usd(PRECIOS.completo)}</CheckoutButton></div>
+          <p className="font-sans text-[14px] text-tinta/80">¿Prefieres todo el sistema con dinámicas, rompehielos, 100 preguntas y los 3 bonos? Plan Completo por {usd(PRECIOS.completo)}.</p>
+          <div className="mt-3"><CheckoutButton href={CHECKOUT.completo} plan="completo" value={PRECIOS.completo}>Quiero el Completo</CheckoutButton></div>
         </div>
       </section>
       <Footer />
