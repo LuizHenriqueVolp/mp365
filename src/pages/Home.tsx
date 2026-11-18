@@ -126,6 +126,44 @@ function MiraPorDentro({ onZoom }: { onZoom: (x: { src: string; alt: string }) =
   );
 }
 
+const PLAN_CTA = `${CTA_CLASS} w-full max-w-none py-5 text-base`;
+
+function PlanCard({ badge, subtitle, tagline, items, excluded = [], priceLabel, price, cta, featured = false }: {
+  badge: string; subtitle: string; tagline: string; items: string[]; excluded?: string[];
+  priceLabel: React.ReactNode; price: number; cta: React.ReactNode; featured?: boolean;
+}) {
+  return (
+    <div className={`flex flex-col rounded-[2rem] bg-card p-6 shadow-premium sm:p-10 ${featured ? "border-2 border-gold" : "border border-gold/50"}`}>
+      <div className="text-center">
+        <span className={`inline-block rounded-full px-4 py-1.5 text-[0.65rem] font-semibold tracking-[0.2em] ${featured ? "bg-wine-gradient text-primary-foreground" : "bg-secondary text-wine"}`}>{badge}</span>
+        <Rings className="mx-auto mt-5 h-7 w-12 text-gold" />
+        <h2 className="mt-3 font-display text-2xl uppercase tracking-[0.1em] text-wine-deep sm:text-3xl">Ministerio de Parejas 365</h2>
+        <p className="mt-1 text-xs font-semibold uppercase tracking-[0.22em] text-brown-warm">{subtitle}</p>
+        <p className="mt-5 text-balance font-display text-xl leading-snug text-wine sm:text-2xl">{tagline}</p>
+      </div>
+      <ul className="mt-7 grid gap-2 sm:grid-cols-2 md:grid-cols-1">
+        {items.map((x) => (
+          <li key={x} className="flex items-start gap-2 text-sm text-foreground sm:text-base"><Check /><span className="min-w-0">{x}</span></li>
+        ))}
+        {excluded.map((x) => (
+          <li key={x} className="flex items-start gap-2 text-sm text-muted-foreground/70 line-through sm:text-base"><span aria-hidden="true" className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center text-xs">✕</span><span className="min-w-0">{x}</span></li>
+        ))}
+      </ul>
+      <div className="mt-auto">
+        <div className="mt-8 rounded-2xl bg-secondary/70 p-6 text-center">
+          <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">{priceLabel}</p>
+          <p className="mt-1 font-display text-5xl text-wine sm:text-6xl">{usd(price)}</p>
+          <p className="mx-auto mt-3 max-w-sm text-xs leading-relaxed text-muted-foreground sm:text-sm">Puedes pagar en tu moneda local según las opciones disponibles en el checkout.</p>
+        </div>
+        <div className="mt-7 flex flex-col items-center">
+          {cta}
+          <p className="mt-3 text-center text-xs text-muted-foreground sm:text-sm">Pago seguro • Acceso inmediato • Garantía de {GARANTIA_DIAS} días</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Home() {
   useReveal();
   useEffect(() => { trackViewContent(); }, []);
@@ -279,73 +317,30 @@ export default function Home() {
         </div>
       </section>
 
-      {/* PLANES — lado a lado: Básico y Completo */}
+      {/* PLANES — mismo cartón del original. Celular: Básico y Completo uno debajo del otro; md+: lado a lado. */}
       <section id="oferta" data-track="planes" className="relative scroll-mt-4 overflow-hidden bg-wine-gradient section-pad">
         <div aria-hidden="true" className="pointer-events-none absolute -left-20 top-10 h-64 w-64 rounded-full bg-gold-gradient opacity-20 blur-3xl" />
-        <div className="relative mx-auto max-w-5xl px-3 sm:px-5">
-          <div className="text-center">
-            <Rings className="mx-auto h-7 w-12 text-gold" />
-            <h2 className="mt-3 font-display text-2xl uppercase tracking-[0.1em] text-primary-foreground sm:text-3xl">Elige tu plan</h2>
-            <p className="mt-1 text-xs font-semibold uppercase tracking-[0.22em] text-gold-soft">Sistema Encuentro Listo</p>
-            <p className="mx-auto mt-4 max-w-xl text-balance font-display text-xl leading-snug text-primary-foreground/90 sm:text-2xl">Ten tus próximos encuentros mucho más preparados desde hoy.</p>
-          </div>
-
-          <div className="mt-8 grid grid-cols-2 items-stretch gap-2.5 sm:gap-6">
-            {/* BÁSICO */}
-            <div className="flex flex-col rounded-[1.25rem] border border-gold/40 bg-card p-3 shadow-premium sm:rounded-[2rem] sm:p-8">
-              <div className="text-center">
-                <span className="inline-block rounded-full bg-secondary px-2.5 py-1 text-[0.6rem] font-semibold tracking-[0.16em] text-wine sm:px-4 sm:text-[0.65rem]">PLAN BÁSICO</span>
-                <h3 className="mt-3 font-display text-lg uppercase leading-tight tracking-[0.06em] text-wine-deep sm:text-2xl">Encuentros Listos</h3>
-              </div>
-              <ul className="mt-4 grid gap-1.5 sm:mt-6 sm:gap-2">
-                {PLAN_BASICO.si.map((x) => (
-                  <li key={x} className="flex items-start gap-1.5 text-[0.8rem] leading-snug text-foreground sm:gap-2 sm:text-base"><Check className="mt-px h-4 w-4 shrink-0 text-gold sm:h-5 sm:w-5" /><span className="min-w-0">{x}</span></li>
-                ))}
-                {PLAN_BASICO.no.map((x) => (
-                  <li key={x} className="flex items-start gap-1.5 text-[0.8rem] leading-snug text-muted-foreground/70 line-through sm:gap-2 sm:text-base"><span aria-hidden="true" className="grid h-4 w-4 shrink-0 place-items-center text-xs sm:h-5 sm:w-5">✕</span><span className="min-w-0">{x}</span></li>
-                ))}
-              </ul>
-              <div className="mt-auto pt-5">
-                <div className="rounded-2xl bg-secondary/70 p-3 text-center sm:p-5">
-                  <p className="text-[0.6rem] uppercase tracking-[0.16em] text-muted-foreground sm:text-xs">Pago único</p>
-                  <p className="mt-1 font-display text-[2rem] leading-none text-wine sm:text-5xl">{usd(PRECIOS.basico)}</p>
-                </div>
-                <div className="mt-4">
-                  <CheckoutButton href={CHECKOUT.basico} plan="basico" value={PRECIOS.basico} className={`${CTA_CLASS} min-h-14! px-2! py-3! text-[0.72rem]! tracking-[0.06em]! sm:px-6! sm:text-sm!`}>
-                    <span className="pointer-events-none">Quiero el Básico</span>
-                  </CheckoutButton>
-                </div>
-              </div>
-            </div>
-
-            {/* COMPLETO */}
-            <div className="relative flex flex-col rounded-[1.25rem] border-2 border-gold bg-card p-3 shadow-premium sm:rounded-[2rem] sm:p-8">
-              <span className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-gold-gradient px-3 py-1 text-[0.6rem] font-bold tracking-[0.14em] text-wine-deep shadow-soft sm:text-[0.65rem]">MÁS ELEGIDO</span>
-              <div className="text-center">
-                <span className="inline-block rounded-full bg-wine-gradient px-2.5 py-1 text-[0.6rem] font-semibold tracking-[0.16em] text-primary-foreground sm:px-4 sm:text-[0.65rem]">ACCESO COMPLETO</span>
-                <h3 className="mt-3 font-display text-lg uppercase leading-tight tracking-[0.06em] text-wine-deep sm:text-2xl">Ministerio de Parejas 365</h3>
-              </div>
-              <ul className="mt-4 grid gap-1.5 sm:mt-6 sm:gap-2">
-                {PLAN_COMPLETO.map((x) => (
-                  <li key={x} className="flex items-start gap-1.5 text-[0.8rem] leading-snug text-foreground sm:gap-2 sm:text-base"><Check className="mt-px h-4 w-4 shrink-0 text-gold sm:h-5 sm:w-5" /><span className="min-w-0">{x}</span></li>
-                ))}
-              </ul>
-              <div className="mt-auto pt-5">
-                <div className="rounded-2xl bg-secondary/70 p-3 text-center sm:p-5">
-                  <p className="text-[0.6rem] uppercase tracking-[0.16em] text-muted-foreground sm:text-xs">De <span className="font-semibold text-brown-warm line-through decoration-wine/70 decoration-2">{usd(PRECIOS.basico + TOTAL_BONOS)}</span> por solo</p>
-                  <p className="mt-1 font-display text-[2rem] leading-none text-wine sm:text-5xl">{usd(PRECIOS.completo)}</p>
-                </div>
-                <div className="mt-4">
-                  <CheckoutButton href={CHECKOUT.completo} plan="completo" value={PRECIOS.completo} className={`${CTA_CLASS} min-h-14! px-2! py-3! text-[0.72rem]! tracking-[0.06em]! sm:px-6! sm:text-sm!`}>
-                    <span className="pointer-events-none">Quiero el Completo</span>
-                  </CheckoutButton>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <p className="mx-auto mt-6 max-w-md text-center text-xs leading-relaxed text-primary-foreground/80 sm:text-sm">Puedes pagar en tu moneda local según las opciones disponibles en el checkout.</p>
-          <p className="mt-2 text-center text-xs text-primary-foreground/80 sm:text-sm">Pago seguro • Acceso inmediato • Garantía de {GARANTIA_DIAS} días</p>
+        <div className="relative mx-auto grid max-w-3xl gap-8 px-5 md:max-w-5xl md:grid-cols-2 md:items-stretch md:gap-6">
+          <PlanCard
+            badge="PLAN BÁSICO"
+            subtitle="Encuentros Listos"
+            tagline="Empieza con lo esencial para tus próximos encuentros."
+            items={PLAN_BASICO.si}
+            excluded={PLAN_BASICO.no}
+            priceLabel={<>Pago único</>}
+            price={PRECIOS.basico}
+            cta={<CheckoutButton href={CHECKOUT.basico} plan="basico" value={PRECIOS.basico} className={PLAN_CTA}><span className="pointer-events-none inline-flex items-center gap-2"><span>Quiero el Básico</span><span aria-hidden="true">→</span></span></CheckoutButton>}
+          />
+          <PlanCard
+            featured
+            badge="ACCESO COMPLETO"
+            subtitle="Sistema Encuentro Listo"
+            tagline="Ten tus próximos encuentros mucho más preparados desde hoy."
+            items={PLAN_COMPLETO}
+            priceLabel={<>De <span className="font-semibold text-brown-warm line-through decoration-wine/70 decoration-2">{usd(PRECIOS.basico + TOTAL_BONOS)}</span> por solo</>}
+            price={PRECIOS.completo}
+            cta={<CheckoutButton href={CHECKOUT.completo} plan="completo" value={PRECIOS.completo} className={PLAN_CTA}><span className="pointer-events-none inline-flex items-center gap-2"><span>Quiero el Completo</span><span aria-hidden="true">→</span></span></CheckoutButton>}
+          />
         </div>
       </section>
 
