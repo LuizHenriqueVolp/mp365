@@ -20,7 +20,7 @@ export const CHECKOUT = {
 };
 
 // Pega aquí el HTML que genera la Cakto en Producto → Upsell/Downsell → "Gerador de Upsell"
-// (usando como URL la página https://TU-DOMINIO/oferta-especial). Activa la compra en 1 clic.
+// (usando como URL la página https://parejas365.vercel.app/oferta-especial). Activa la compra en 1 clic.
 export const UPSELL_CAKTO_HTML = ``;
 
 export const PRECIOS = {

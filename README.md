@@ -18,7 +18,7 @@ Página de vendas mobile-first (Vite + React + TypeScript + Tailwind), compatív
 - 6 depoimentos reais (imagens servidas a partir de parejas365.lovable.app)
 
 ## Falta 1 passo (upsell em 1 clique)
-Na Cakto: Produto principal → **Upsell/Downsell** → ative a página personalizada → URL `https://SEU-DOMINIO/oferta-especial` → **Gerador de Upsell** → copie o HTML e cole em `UPSELL_CAKTO_HTML` (`src/config.ts`). Sem isso, o upsell usa o link comum e o cliente precisa digitar o cartão de novo.
+Na Cakto: Produto principal → **Upsell/Downsell** → ative a página personalizada → URL `https://parejas365.vercel.app/oferta-especial` → **Gerador de Upsell** → copie o HTML e cole em `UPSELL_CAKTO_HTML` (`src/config.ts`). Sem isso, o upsell usa o link comum e o cliente precisa digitar o cartão de novo.
 
 ## Tracking (como medir LPV, checkout iniciado e compra com precisão)
 
