@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body { @apply bg-crema text-tinta font-body antialiased; font-size: 17px; line-height: 1.6; }
+h1, h2, h3 { @apply font-display text-vino; line-height: 1.15; }
+img { max-width: 100%; height: auto; }
+
+.eyebrow { @apply font-sans text-[11px] font-bold uppercase tracking-[0.2em] text-oro; }
+.gold-rule { height: 1px; background: linear-gradient(90deg, transparent, #C9A04A, transparent); }
+
+/* Botón principal con brillo discreto */
+.btn-cta {
+  @apply relative inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-full bg-vino px-5 font-sans text-[14px] font-bold uppercase tracking-normal text-white text-center leading-tight shadow-lg transition-transform active:scale-[0.98];
+  min-height: 56px;
+  box-shadow: 0 10px 24px rgba(110, 20, 38, 0.35);
+}
+.btn-cta::after {
+  content: ""; position: absolute; inset: 0; transform: translateX(-120%);
+  background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,.35) 50%, transparent 70%);
+  animation: shine 3.2s ease-in-out infinite;
+}
+.btn-gold { @apply bg-oro-light text-vino-900; box-shadow: 0 10px 24px rgba(201,160,74,.35); }
+@keyframes shine { 0%, 60% { transform: translateX(-120%); } 100% { transform: translateX(120%); } }
+
+.pulse-soft { animation: pulseSoft 2.6s ease-in-out infinite; }
+@keyframes pulseSoft { 0%,100% { transform: scale(1); } 50% { transform: scale(1.025); } }
+
+/* Entrada al hacer scroll */
+[data-reveal] { opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s ease; }
+[data-reveal].in { opacity: 1; transform: none; }
+
+.card { @apply rounded-2xl border border-[#eadfcf] bg-white p-5 shadow-[0_1px_0_rgba(0,0,0,.03)]; }
+
+/* Carrusel deslizable */
+.snap-row { display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding: 4px 20px 12px; }
+.snap-row::-webkit-scrollbar { display: none; }
+.snap-row > * { scroll-snap-align: center; flex: 0 0 78%; max-width: 340px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  [data-reveal] { opacity: 1; transform: none; }
+}
