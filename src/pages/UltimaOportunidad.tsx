@@ -22,7 +22,7 @@ export default function UltimaOportunidad() {
         <p className="mx-auto mt-3 max-w-md text-[16px] text-white/85">Manual del Líder + 24 encuentros completos para todo el año. Pago único, acceso inmediato y {GARANTIA_DIAS} días de garantía.</p>
         <img src="/img/plan-basico-480.webp" srcSet="/img/plan-basico-480.webp 480w, /img/plan-basico-800.webp 800w" sizes="(max-width: 640px) 80vw, 400px" width={480} height={453} alt="Plan Básico" className="mx-auto mt-4 w-4/5 max-w-[360px]" />
         <div className="mx-auto mt-5 max-w-sm">
-          <CheckoutButton href={CHECKOUT.basico} plan="basico" value={PRECIOS.basico} gold>Quiero el Básico</CheckoutButton>
+          <CheckoutButton href={CHECKOUT.basico} plan="basico" value={PRECIOS.basico} gold>Quiero lo esencial</CheckoutButton>
           <Trust light />
         </div>
       </section>
