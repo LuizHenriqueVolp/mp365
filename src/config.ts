@@ -7,7 +7,7 @@
 export const PIXEL_ID = "984364367619085";
 
 // Garantia (dias) — aparece em toda a página, FAQ e termos.
-export const GARANTIA_DIAS = 15;
+export const GARANTIA_DIAS = 14;
 
 // Enlaces de checkout de la Cakto.
 export const CHECKOUT = {

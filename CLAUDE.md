@@ -34,7 +34,7 @@ npm run build    # gera dist/
 2. **Nunca disparar Purchase no site.** Purchase vem da UTMify (webhook da Cakto) ou do pixel no produto da Cakto — nunca os dois junto com o site.
 3. **Todo botão de compra usa `CheckoutButton`** (repassa UTMs ao checkout e registra o clique). Nunca `<a href>` direto para a Cakto.
 4. **Rolagem até os planos usa `scrollToId()`**, não `href="#..."` com navegação: entradas no histórico disparam o back redirect.
-5. **Garantia:** `GARANTIA_DIAS` em `src/config.ts` (15). Não escrever o número à mão.
+5. **Garantia:** `GARANTIA_DIAS` em `src/config.ts` (14). Não escrever o número à mão.
 6. **Depoimentos, números e provas só reais.** Nada de escassez falsa, cronômetro que reinicia ou depoimento inventado.
 7. **Anúncios Meta:** não afirmar características pessoais do público (religião): "Para líderes de ministerios…", nunca "¿Eres cristiano?".
 8. **Espanhol neutro** (ustedes, celular, computadora). Versículos na RVR1960, com a referência.
