@@ -4,7 +4,7 @@ import { setupBackRedirect, trackViewContent } from "@/lib/tracking";
 import { CTA_CLASS, Check, CheckoutButton, CtaToPlans, Divider, Footer, Rings, Shield, useLightbox, useReveal } from "@/components/ui";
 
 // Réplica de parejas365.lovable.app (mismas fuentes, tamaños, posiciones y colores).
-// Cambios pedidos: mockup nuevo, 2 planes lado a lado (Básico → Completo), garantía de 15 días.
+// Cambios pedidos: mockup nuevo, 2 planes lado a lado (Básico → Completo), garantía configurable (GARANTIA_DIAS).
 
 const usd = (n: number) => `US$ ${n.toFixed(2).replace(".", ",")}`;
 const img = (name: string, w: number) => `/img/lp/${name}-${w}.webp`;
