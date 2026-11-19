@@ -33,8 +33,8 @@ export const UPSELL_CAKTO_HTML = ``;
 
 export const PRECIOS = {
   moneda: "USD",
-  basico: 9.9,
-  completo: 17.9,
+  basico: 5.9,
+  completo: 9.9,
   upsell: 14.9,
   // Valor individual de referencia de cada bono (no es precio tachado).
   bonos: { conexion: 9.9, comunicacion: 7.9, organizacion: 6.9 },

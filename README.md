@@ -5,7 +5,7 @@ Página de vendas mobile-first (Vite + React + TypeScript + Tailwind), compatív
 ## Páginas
 | Rota | Função |
 |---|---|
-| `/` | Página de vendas (2 planos: Básico US$ 9,90 · Completo US$ 17,90) |
+| `/` | Página de vendas (2 planos: Básico US$ 5,90 · Completo US$ 9,90) |
 | `/oferta-especial` | Upsell pós-compra: Retiro de Parejas Listo (US$ 14,90) |
 | `/gracias` | Obrigado (sem disparar Purchase) |
 | `/ultima-oportunidad` | Destino do back redirect da UTMify (Plano Básico em destaque, UTMs preservadas) |

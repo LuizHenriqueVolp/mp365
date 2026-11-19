@@ -26,7 +26,7 @@ Ministerio de Parejas 365 reúne un año completo de encuentros listos para apli
 
 Cada encuentro trae texto bíblico, enseñanza en 3 puntos, dinámica en pareja y oración de cierre. Para leer en el celular o imprimir.
 
-👉 Acceso inmediato desde US$ 9,90.
+👉 Acceso inmediato desde US$ 5,90.
 
 **Título:** Un año de encuentros de parejas, listo
 **Descrição:** Material para líderes de ministerios de matrimonios
