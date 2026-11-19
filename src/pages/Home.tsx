@@ -1,10 +1,19 @@
 import { useEffect, useRef, useState } from "react";
-import { BACK_REDIRECT_PATH, CHECKOUT, GARANTIA_DIAS, PRECIOS, TESTIMONIOS } from "@/config";
+import { BACK_REDIRECT_PATH, CHECKOUT, GARANTIA_DIAS, PAGOS_OTROS, PAGOS_POR_PAIS, PRECIOS, TESTIMONIOS } from "@/config";
 import { setupBackRedirect, trackViewContent } from "@/lib/tracking";
 import { CTA_CLASS, Check, CheckoutButton, CtaToPlans, Divider, Footer, Rings, Shield, useLightbox, useReveal } from "@/components/ui";
 
 // Réplica de parejas365.lovable.app (mismas fuentes, tamaños, posiciones y colores).
 // Cambios pedidos: mockup nuevo, 2 planes lado a lado (Básico → Completo), garantía configurable (GARANTIA_DIAS).
+
+/** Texto de medios de pago según el país (zona horaria del celular). */
+function pagoTexto() {
+  try {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
+    return PAGOS_POR_PAIS.find((p) => p.zonas.test(tz))?.texto ?? PAGOS_OTROS;
+  } catch { return PAGOS_OTROS; }
+}
+const PAGO = pagoTexto();
 
 const usd = (n: number) => `US$ ${n.toFixed(2).replace(".", ",")}`;
 const img = (name: string, w: number) => `/img/lp/${name}-${w}.webp`;
@@ -153,7 +162,7 @@ function PlanCard({ badge, subtitle, tagline, items, excluded = [], priceLabel, 
         <div className="mt-8 rounded-2xl bg-secondary/70 p-6 text-center">
           <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">{priceLabel}</p>
           <p className="mt-1 font-display text-5xl text-wine sm:text-6xl">{usd(price)}</p>
-          <p className="mx-auto mt-3 max-w-sm text-xs leading-relaxed text-muted-foreground sm:text-sm">Puedes pagar en tu moneda local según las opciones disponibles en el checkout.</p>
+          <p className="mx-auto mt-3 max-w-sm text-sm leading-relaxed text-muted-foreground">{PAGO}</p>
         </div>
         <div className="mt-7 flex flex-col items-center">
           {cta}
@@ -173,27 +182,28 @@ export default function Home() {
 
   return (
     <main className="overflow-x-hidden">
-      {/* HERO */}
-      <section data-track="hero" className="relative overflow-hidden bg-cream-gradient section-pad">
+      {/* HERO — en la 1.ª pantalla del celular (≈700 px): qué es, el producto, el botón y el precio. */}
+      <section data-track="hero" className="relative overflow-hidden bg-cream-gradient pb-12 pt-7 md:section-pad">
         <div aria-hidden="true" className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-gold-gradient opacity-40 blur-3xl" />
         <div className="relative mx-auto max-w-3xl px-5 text-center">
-          <p className="eyebrow">Para líderes y ministerios de matrimonios</p>
-          <div className="mt-4 flex items-center justify-center gap-3">
-            <Rings className="h-6 w-10 text-gold" />
-            <p className="font-display text-lg uppercase tracking-[0.2em] text-wine">Ministerio de Parejas 365</p>
-          </div>
-          <h1 className="mt-5 text-balance font-display text-3xl leading-[1.12] text-wine-deep sm:text-4xl md:text-5xl">Ten un año entero de encuentros matrimoniales planificados, organizados y listos para aplicar.</h1>
-          <p className="mt-5 text-base leading-relaxed text-muted-foreground sm:text-lg">Temas, dinámicas, preguntas, retos y recursos organizados para ayudarte a preparar encuentros con propósito sin perder horas buscando ideas o comenzando desde cero.</p>
-          <div className="relative mt-8">
+          <p className="eyebrow">Para líderes de ministerios de matrimonios</p>
+          <h1 className="mt-3 text-balance font-display text-[1.75rem] leading-[1.12] text-wine-deep sm:text-4xl md:text-5xl">24 encuentros para matrimonios, listos para aplicar en tu iglesia</h1>
+          <p className="mx-auto mt-3 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">Con dinámicas, rompehielos y preguntas. Solo eliges el tema, preparas y aplicas.</p>
+          <div className="relative mt-5">
             <div aria-hidden="true" className="absolute inset-6 rounded-[2rem] bg-gold-gradient opacity-30 blur-2xl" />
             <img
               src={img("hero", 1100)} srcSet={srcSet("hero", [640, 1100, 1536])} sizes="(max-width: 768px) 100vw, 672px"
               alt="Todo lo que recibes en Ministerio de Parejas 365: libros, encuentros, dinámicas, rompehielos, preguntas, tarjetas, invitaciones, certificados, planificadores y separadores"
               width={1536} height={1024} fetchPriority="high" decoding="async"
-              className="relative mx-auto w-full max-w-2xl rounded-[1.75rem] border border-gold-soft/60 shadow-premium"
+              className="relative mx-auto w-full max-w-2xl rounded-[1.5rem] border border-gold-soft/60 shadow-premium"
             />
           </div>
-          <div className="mt-8 flex flex-col items-center"><CtaToPlans trust /></div>
+          <div className="mt-5 flex flex-col items-center">
+            <CtaToPlans />
+            <p className="mt-3 text-base font-semibold text-wine">Desde {usd(PRECIOS.basico)} · Pago único</p>
+            <p className="mt-1 text-sm text-muted-foreground">Acceso inmediato · Garantía de {GARANTIA_DIAS} días</p>
+            <p className="mt-1 text-sm text-muted-foreground">{PAGO}</p>
+          </div>
         </div>
       </section>
 

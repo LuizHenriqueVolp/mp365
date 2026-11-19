@@ -9,6 +9,14 @@ export const PIXEL_ID = "984364367619085";
 // Garantia (dias) — aparece em toda a página, FAQ e termos.
 export const GARANTIA_DIAS = 14;
 
+// Medios de pago que muestra la página según el país del visitante (detectado por la zona horaria
+// del celular, sin llamadas externas). Deben coincidir con los medios activos en la Cakto.
+export const PAGOS_POR_PAIS: { pais: string; zonas: RegExp; texto: string }[] = [
+  { pais: "MX", zonas: /^America\/(Mexico_City|Cancun|Merida|Monterrey|Matamoros|Chihuahua|Ciudad_Juarez|Ojinaga|Hermosillo|Mazatlan|Bahia_Banderas|Tijuana)$/, texto: "Paga con OXXO, SPEI, Mercado Pago o tarjeta." },
+  { pais: "CO", zonas: /^America\/Bogota$/, texto: "Paga con PSE, Nequi o tarjeta." },
+];
+export const PAGOS_OTROS = "Paga con tarjeta, PayPal y otros medios locales.";
+
 // Enlaces de checkout de la Cakto.
 export const CHECKOUT = {
   basico: "https://pay.cakto.com.br/ruo23qa_1338917",
