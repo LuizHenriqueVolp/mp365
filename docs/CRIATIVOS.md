@@ -15,7 +15,7 @@ Instrução negativa para colar no fim de TODOS os prompts:
 
 ## Criativo 1 — "A noite antes do encontro" (dor)
 
-> Fotografia realista vertical 4:5, estilo foto espontânea de celular, luz quente de abajur à noite. Sobre uma mesa de madeira: uma Bíblia aberta, um caderno com anotações riscadas ("¿tema?", "¿dinámica?"), uma caneca de café pela metade e um celular apoiado mostrando uma página organizada com o título "Encuentro 7: Comunicación en el matrimonio" e as seções "Dinámica", "Preguntas" e "Oración". Mãos de um adulto de uns 40 anos segurando uma caneta, hesitante. Ambiente de casa simples latino-americana.
+> Fotografia realista vertical 4:5, estilo foto espontânea de celular, luz quente de abajur à noite. Sobre uma mesa de madeira: uma Bíblia aberta, um caderno com anotações riscadas ("¿tema?", "¿dinámica?"), uma caneca de café pela metade e um celular apoiado mostrando uma página organizada com o título "Encuentro 4: Escuchar antes de responder" e as seções "Dinámica", "Preguntas" e "Oración". Mãos de um adulto de uns 40 anos segurando uma caneta, hesitante. Ambiente de casa simples latino-americana.
 >
 > Faixa creme no terço superior, fonte serifada vinho: **"¿Tu próximo encuentro de matrimonios todavía no está listo?"**
 >
@@ -27,7 +27,7 @@ Primeira linha do texto do anúncio: *Para líderes de ministerios de matrimonio
 
 ## Criativo 2 — "O encontro acontecendo" (resultado + filtro de público)
 
-> Fotografia realista vertical 4:5, luz natural de fim de tarde entrando pela janela de uma sala simples de igreja na América Latina. Primeiro plano: as mãos de um líder segurando um celular cuja tela mostra "Encuentro 12: El perdón" com as seções "Dinámica en pareja" e "Preguntas para conectar". Ao fundo, levemente desfocados, 6 casais de 30 a 55 anos sentados em cadeiras em círculo, conversando em duplas, sorrindo, com folhas impressas nas mãos.
+> Fotografia realista vertical 4:5, luz natural de fim de tarde entrando pela janela de uma sala simples de igreja na América Latina. Primeiro plano: as mãos de um líder segurando um celular cuja tela mostra "Encuentro 8: El perdón que restaura" com as seções "Dinámica en pareja" e "Preguntas para conectar". Ao fundo, levemente desfocados, 6 casais de 30 a 55 anos sentados em cadeiras em círculo, conversando em duplas, sorrindo, com folhas impressas nas mãos.
 >
 > Faixa creme no terço superior, fonte serifada vinho: **"Para líderes de matrimonios: tu próximo encuentro, listo en minutos"**
 >
