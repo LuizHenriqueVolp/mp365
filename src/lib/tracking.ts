@@ -84,6 +84,31 @@ function fbq(...args: unknown[]) { try { window.fbq?.(...args); } catch { /* ign
 export function trackViewContent() {
   if (!utmifyPixelActive()) fbq("track", "ViewContent", { content_name: "Ministerio de Parejas 365", content_category: "Producto digital", currency: PRECIOS.moneda, value: PRECIOS.completo });
   logEvent("view_content");
+  scheduleTrackingCheck();
+}
+
+/** Diagnóstico: aos 4 s e 12 s registra no Neon se o pixel do Meta iniciou de fato no navegador do
+ *  visitante (fbq com pixel, cookie _fbp/_fbc, lead da UTMify). Uma vez por sessão. */
+function scheduleTrackingCheck() {
+  try { if (sessionStorage.getItem("mp365_tc")) return; sessionStorage.setItem("mp365_tc", "1"); } catch { /* ignore */ }
+  const check = (t: number) => {
+    let pixels: string[] = [];
+    try {
+      const st = (window.fbq as unknown as { getState?: () => { pixels: { id: string }[] } })?.getState?.();
+      pixels = st?.pixels?.map((p) => p.id) ?? [];
+    } catch { /* ignore */ }
+    let lead = false;
+    try { lead = !!localStorage.getItem("lead"); } catch { /* ignore */ }
+    // Usa section_view (evento aceito pela função do Neon) com name = tracking_check_Xs.
+    logEvent("section_view", {
+      name: `tracking_check_${t}s`, t, fbq: typeof window.fbq, pixels, utmify_lead: lead,
+      fbp_cookie: /(^|; )_fbp=/.test(document.cookie), fbc_cookie: /(^|; )_fbc=/.test(document.cookie),
+      utmify_script: !!document.querySelector('script[src*="utmify.com.br/scripts/pixel"]'),
+      ua: navigator.userAgent.slice(0, 200), online: navigator.onLine, visible: document.visibilityState,
+    });
+  };
+  setTimeout(() => check(4), 4000);
+  setTimeout(() => check(12), 12000);
 }
 
 /** ViewContent de páginas secundarias (solo con el pixel del Meta directo; la UTMify ya lo envía). */
