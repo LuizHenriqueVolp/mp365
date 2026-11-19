@@ -25,23 +25,18 @@
 
     <!-- ============================================================
          TRACKING — configure SOMENTE estas duas linhas.
-         utmifyPixelId: ID do pixel criado no painel da UTMify (Integrações → Pixels)
-           para o pixel do Meta 984364367619085. Com ele preenchido, a UTMify envia
-           PageView, ViewContent, InitiateCheckout (clique no checkout) e Purchase
-           (venda aprovada na Cakto) ao Meta pelo navegador + API de Conversões,
-           com deduplicação. NÃO carregue o pixel do Meta junto (duplicaria eventos).
-         Vazio: usa o pixel do Meta direto e o site dispara ViewContent e InitiateCheckout.
+         1) Pixel do Meta DIRETO, sempre: PageView no primeiro instante da página. É ele que
+            gera a "visualização da página de destino" (LPV). Não pode esperar a UTMify: o
+            script dela consulta o IP do visitante (até 5 s) e o servidor dela antes de iniciar
+            o pixel, e quem sai antes disso nunca era contado (0 LPV em 18/11).
+         2) Pixel da UTMify (utmifyPixelId): InitiateCheckout no clique dos planos e Purchase
+            da Cakto pela API de Conversões, com o ID do lead. Ele também manda um PageView
+            próprio (conta em dobro no Gerenciador de Eventos, mas a LPV é 1 por clique).
+         Sem utmifyPixelId: o site dispara ViewContent e InitiateCheckout sozinho.
          ============================================================ -->
     <script>
       window.MP365_TRACKING = { metaPixelId: "984364367619085", utmifyPixelId: "6afd1fb17dbd27d86edbb762" };
       (function (t) {
-        if (t.utmifyPixelId) {
-          window.pixelId = t.utmifyPixelId;
-          var s = document.createElement("script");
-          s.src = "https://cdn.utmify.com.br/scripts/pixel/pixel.js"; s.async = true; s.defer = true;
-          document.head.appendChild(s);
-          return;
-        }
         !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
         n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
         n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
@@ -50,9 +45,16 @@
         // O back redirect usa history.pushState: sem isto o Meta contaria PageViews falsos.
         fbq.disablePushState = true;
         fbq('init', t.metaPixelId);
-        fbq('track', 'PageView');
+        fbq('track', 'PageView', {}, { eventID: 'pv-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8) });
+        if (t.utmifyPixelId) {
+          window.pixelId = t.utmifyPixelId;
+          var s = document.createElement("script");
+          s.src = "https://cdn.utmify.com.br/scripts/pixel/pixel.js"; s.async = true; s.defer = true;
+          document.head.appendChild(s);
+        }
       })(window.MP365_TRACKING);
     </script>
+    <noscript><img height="1" width="1" style="display:none" alt="" src="https://www.facebook.com/tr?id=984364367619085&ev=PageView&noscript=1" /></noscript>
 
     <!-- UTMify: script de UTMs (repassa utm_*, src e sck para o checkout da Cakto) -->
     <script src="https://cdn.utmify.com.br/scripts/utms/latest.js" data-utmify-prevent-xcod-sck data-utmify-prevent-subids async defer></script>

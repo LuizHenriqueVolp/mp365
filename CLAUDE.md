@@ -29,8 +29,9 @@ npm run build    # gera dist/
 
 ## Regras que não podem ser quebradas
 1. **Pixel:** só em `index.html` (`window.MP365_TRACKING`). Nunca adicionar outro `fbq('init')`.
-   - `utmifyPixelId` preenchido → a UTMify envia PageView, ViewContent, InitiateCheckout e Purchase (navegador + API de Conversões). O site não dispara eventos padrão.
-   - Vazio → pixel do Meta direto: PageView no `index.html` (com `fbq.disablePushState = true` por causa do back redirect), ViewContent ao abrir a página, InitiateCheckout no clique (1 vez por plano por sessão). Os checkouts da Cakto **não** têm pixel.
+   - O pixel do Meta é carregado **sempre direto** e dispara PageView imediatamente (com `fbq.disablePushState = true` por causa do back redirect). Não mover isso para depois da UTMify: ela espera até 5 s pela consulta de IP e pelo servidor dela, e as visitas que saem antes não geram "visualização da página de destino" (deu 0 LPV em 18/11).
+   - `utmifyPixelId` preenchido → a UTMify envia ViewContent, InitiateCheckout (regras de texto "QUIERO EL BASICO"/"QUIERO EL COMPLETO") e Purchase (navegador + API de Conversões). O site não dispara ViewContent nem IC.
+   - Vazio → o site dispara ViewContent ao abrir a página e InitiateCheckout no clique (1 vez por plano por sessão). Os checkouts da Cakto **não** têm pixel.
 2. **Nunca disparar Purchase no site.** Purchase vem da UTMify (webhook da Cakto) ou do pixel no produto da Cakto — nunca os dois junto com o site.
 3. **Todo botão de compra usa `CheckoutButton`** (repassa UTMs ao checkout e registra o clique). Nunca `<a href>` direto para a Cakto.
 4. **Rolagem até os planos usa `scrollToId()`**, não `href="#..."` com navegação: entradas no histórico disparam o back redirect.
